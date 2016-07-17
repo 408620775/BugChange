@@ -13,8 +13,13 @@ public class Main {
 	static FileOperation fileOperation;
 
 	public static void main(String[] args) throws Exception {
-		Extraction2 extraction2 = new Extraction2("voldemort", 501, 800);
-		System.out.println("hello");
+		// Test test=new Test();
+		Test test2 = new Test("voldemort");
+
+		// test.sortCommitByBranch("rev_id.txt", "log1");;
+		List<String> revList = test2.getRevList("log1");
+		Map<String, Integer> map = test2.getRev_idMap("rev_id.txt");
+		test2.findLastChange(727, 188, map, revList);
 	}
 
 	static public void Automatic() throws Exception {

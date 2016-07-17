@@ -37,7 +37,7 @@ public class SimpleClassify extends Classify{
 	 */
 	public SimpleClassify( Classifier cla,Instances ins) {
 		super(cla, ins);
-		ins.setClass(ins.attribute("bug_introducing"));
+		ins.setClass(ins.attribute(" is_bug_intro"));
 	}
 
 	public SimpleClassify(Classifier cla) {

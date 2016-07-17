@@ -15,6 +15,7 @@ public abstract class Classify {
 	Evaluation eval;
 	Instances ins;
 	List<Double> res;
+	private String className=" is_bug_intro";
 /**
  * 返回分类器评估结果.
  * @return 模型评估结果
@@ -50,7 +51,7 @@ public abstract class Classify {
  */
 	public void setIns(Instances ins) {
 		this.ins = ins;
-		ins.setClass(ins.attribute("bug_introducing"));
+		ins.setClass(ins.attribute(className));
 	}
 /**
  * 分类器构造函数.

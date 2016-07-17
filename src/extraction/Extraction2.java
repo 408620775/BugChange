@@ -63,7 +63,8 @@ public class Extraction2 extends Extraction {
 			}
 			i--;
 		}
-
+System.out.println("the start commit_id is "+commit_ids.get(sCommitId-i));
+System.out.println(i);
 		i = 1;
 		while (eCommitId - i > 0) {
 			sql = "select max(id) from extraction1 where commit_id="
@@ -77,6 +78,8 @@ public class Extraction2 extends Extraction {
 			}
 			i++;
 		}
+		System.out.println("the end commit_id is "+commit_ids.get(eCommitId-i));
+		System.out.println(i);
 		System.out.println("起始id号:" + startId + " 结束id号: " + endId);
 		Get_icfId();
 		attributes = new ArrayList<>(); // 属性判断的时候还可以从数据库读取数据.

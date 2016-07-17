@@ -14,6 +14,7 @@ import weka.core.Instances;
  */
 public class Sample {
 	private String file = "";
+	private static String className=" is_bug_intro";
 
 	public Sample(String str) {
 		file = str;
@@ -34,13 +35,14 @@ public class Sample {
 		}
 		Instances YesInstances = new Instances("DefectSample1", attInfo,
 				init.numInstances());// 这里的初始容量需要注意，不要小了。
-		YesInstances.setClass(YesInstances.attribute("bug_introducing"));
-		// YesInstances.setClassIndex(init.numAttributes() - 1);
+		YesInstances.setClass(YesInstances.attribute(className));
+		
+		 //YesInstances.setClassIndex(init.numAttributes() - 1);
 		// 未能统一的将类标签作为最后一个属性，可能导致计算上的复杂，有待改进。
 		Instances Noinstances = new Instances("DefectSample2", attInfo,
 				init.numInstances());
-		Noinstances.setClass(Noinstances.attribute("bug_introducing"));
-		init.setClass(init.attribute("bug_introducing"));
+		Noinstances.setClass(Noinstances.attribute(className));
+		init.setClass(init.attribute(className));
 		int classIndex = init.classIndex();
 		int numAttr = init.numAttributes();
 		int numInstance = init.numInstances();
@@ -104,9 +106,12 @@ public class Sample {
 		}
 
 		Instances NoInstances = new Instances("No", attInfo, numInstance);
-		NoInstances.setClass(NoInstances.attribute("bug_introducing"));
+		
+		NoInstances.setClass(NoInstances.attribute(className));
+		
 		Instances YesInstances = new Instances("yes", attInfo, numInstance);
-		YesInstances.setClass(YesInstances.attribute("bug_introducing"));
+		YesInstances.setClass(YesInstances.attribute(className));
+		
 		int numYes = 0;
 		int numNo = 0;
 		for (int i = 0; i < numInstance; i++) {

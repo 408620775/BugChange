@@ -2,15 +2,21 @@ package extraction;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+
+import sun.awt.windows.ThemeReader;
 
 public class Test {
 	String sql;
@@ -149,34 +155,242 @@ public class Test {
 			}
 		}
 	}
+
 	/**
-	 * 对于给定的commit_id,file_id,在extraction1中找到它上一次的change的信息,这些信息包括在extraction1中的id,commit_id,file_id.
+	 * 对于给定的commit_id,file_id,在extraction1中找到它上一次的change的信息,
+	 * 这些信息包括在extraction1中的id,commit_id,file_id.
+	 * 
 	 * @param c_id
 	 * @param f_id
 	 * @throws SQLException
 	 */
-	public void GetLastChange(int c_id,int f_id) throws SQLException {
-		sql="select extraction1.id,file_name from extraction1,files where extraction1.file_id=files.id and commit_id="+c_id+" and file_id="+f_id;
-		resultSet=stmt.executeQuery(sql);
-		int id=0;
-		String file_name=null;
+	public void GetLastChange(int c_id, int f_id) throws SQLException {
+		sql = "select extraction1.id,file_name from extraction1,files where extraction1.file_id=files.id and commit_id="
+				+ c_id + " and file_id=" + f_id;
+		System.out.println(sql);
+		resultSet = stmt.executeQuery(sql);
+		int id = 0;
+		String file_name = null;
 		while (resultSet.next()) {
-			id=resultSet.getInt(1);
-			file_name=resultSet.getString(2);
+			id = resultSet.getInt(1);
+			file_name = resultSet.getString(2);
 		}
-		sql="select max(extraction1.id) from extraction1,files where extraction1.id<"+id+" and extraction1.file_id=files.id and file_name='"+file_name+"'";
-		int lastId=0;
-		resultSet=stmt.executeQuery(sql);
+		System.out.println(file_name);
+		sql = "select max(extraction1.id) from extraction1,files where extraction1.id<"
+				+ id
+				+ " and extraction1.file_id=files.id and file_name='"
+				+ file_name + "'";
+		System.out.println(sql);
+		int lastId = 0;
+		resultSet = stmt.executeQuery(sql);
 		while (resultSet.next()) {
-			lastId=resultSet.getInt(1);
+			lastId = resultSet.getInt(1);
 		}
-		if (lastId>0) {
-			sql="select id,commit_id,file_id from extraction1 where id="+lastId;
-			resultSet=stmt.executeQuery(sql);
-	        resultSet.next();
-			System.out.println("last change of "+c_id+"_"+f_id+" is "+resultSet.getInt(2)+"_"+resultSet.getInt(3)+",and the id is "+resultSet.getInt(1));
-		}else {
+		System.out.println(lastId);
+		if (lastId > 0) {
+			sql = "select id,commit_id,file_id from extraction1 where id="
+					+ lastId;
+			System.out.println(sql);
+			resultSet = stmt.executeQuery(sql);
+			resultSet.next();
+			System.out.println("last change of " + c_id + "_" + f_id + " is "
+					+ resultSet.getInt(2) + "_" + resultSet.getInt(3)
+					+ ",and the id is " + resultSet.getInt(1));
+		} else {
 			System.out.println("this may be the first change!");
 		}
+	}
+
+	public void compareData(String tFile, String mFile, int commit_id,
+			int file_id) throws IOException {
+		File tF = new File(tFile);
+		File mF = new File(mFile);
+		Map<String, List<Double>> arributeV = new HashMap<>();
+
+		BufferedReader bReader = new BufferedReader(new FileReader(tF));
+		String temp = bReader.readLine();
+		String[] titleStrings = temp.split(",");
+		for (int i = 12; i <= 87; i++) {
+
+			arributeV.put(titleStrings[i].trim().replace(" ", ""),
+					new ArrayList<Double>());
+		}
+		// for (String string : arributeV.keySet()) {
+		// System.out.println(string);
+		// }
+		// System.out.println("=======================================");
+		while ((temp = bReader.readLine()) != null) {
+			String[] value = temp.split(",");
+			if (Integer.parseInt(value[0]) == commit_id
+					&& Integer.parseInt(value[1]) == file_id) {
+				break;
+			} else {
+				continue;
+			}
+		}
+		String[] value = temp.split(",");
+		for (int i = 12; i <= 87; i++) {
+			arributeV.get(titleStrings[i].trim().replace(" ", "")).add(
+					Double.parseDouble(value[i]));
+		}
+		bReader.close();
+
+		bReader = new BufferedReader(new FileReader(mF));
+		String temp2 = bReader.readLine();
+		String[] titleStrings2 = temp2.split(",");
+
+		while ((temp = bReader.readLine()) != null) {
+			String[] value2 = temp.split(",");
+			if (Integer.parseInt(value2[1]) == commit_id
+					&& Integer.parseInt(value2[2]) == file_id) {
+				break;
+			} else {
+				continue;
+			}
+		}
+		String[] value22 = temp.split(",");
+		for (int i = 12; i <= 87; i++) {
+
+			if (titleStrings2[i].contains("Delta_")) {
+				arributeV.get(
+						titleStrings2[i].replace("Delta_", "").trim()
+								+ "_delta").add(Double.parseDouble(value22[i]));
+
+			} else {
+				// System.out.println(titleStrings2[i]);
+				// if (arributeV.containsKey(titleStrings2[i].trim())) {
+				// System.out.println("contain");
+				// }
+				arributeV.get(titleStrings2[i]).add(
+						Double.parseDouble(value22[i]));
+			}
+		}
+
+		for (String string : arributeV.keySet()) {
+			if (arributeV.get(string).size() != 2) {
+				System.out.println("the attribute of " + string
+						+ " only find in one file");
+			} else {
+				if (Math.abs(arributeV.get(string).get(0).doubleValue()) != Math
+						.abs(arributeV.get(string).get(1).doubleValue())) {
+					System.out.println("the number of " + string
+							+ " is different");
+				}
+			}
+		}
+		bReader.close();
+	}
+
+	/**
+	 * 测试对于相同的file_id,它们同属于同一个branch.
+	 * 
+	 * @throws SQLException
+	 */
+	public void testFileBranch(int f_id) throws SQLException {
+		sql = "select commit_id from actions where file_id=" + f_id
+				+ " group by commit_id";
+		List<Integer> commit_ids = new ArrayList<>();
+		resultSet = stmt.executeQuery(sql);
+		while (resultSet.next()) {
+			commit_ids.add(resultSet.getInt(1));
+		}
+		Set<Integer> branchB = new HashSet<>();
+		for (Integer integer : commit_ids) {
+			sql = "select branch_id from actions where commit_id=" + integer
+					+ " and file_id=" + f_id + " group by branch_id";
+			resultSet = stmt.executeQuery(sql);
+			Set<Integer> set = new HashSet<>();
+			while (resultSet.next()) {
+				if (set.isEmpty()) {
+					set.add(resultSet.getInt(1));
+				} else {
+					if (set.add(resultSet.getInt(1))) {
+						System.out.println("the actions of commit_id="
+								+ integer + " file_id=" + f_id
+								+ " has more than one branch");
+						return;
+					}
+				}
+			}
+			for (Integer integer2 : set) {
+				if (branchB.isEmpty()) {
+					branchB.add(integer2);
+				} else {
+					if (branchB.add(integer2)) {
+						System.out.println("the actions of file_id=" + f_id
+								+ " has one more branch");
+						System.out.println(integer + "   " + f_id);
+					}
+				}
+			}
+		}
+	}
+
+	public void sortCommitByBranch(Map<String, Integer> map,String revFile) throws IOException {
+		List<String> revList=getRevList(revFile);
+		List<Integer> sortC=new ArrayList<>();
+		for (String string : revList) {
+		      if (map.containsKey(string)) {
+				sortC.add(map.get(string));
+			}
+		}
+		for (Integer integer : sortC) {
+			System.out.println(integer);
+		}
+	}
+	public Map<String, Integer> getRev_idMap(String rev_id) throws NumberFormatException, IOException {
+		BufferedReader bReader=new BufferedReader(new FileReader(new File(rev_id)));
+		Map<String, Integer> map=new HashMap<>();
+		String line=null;
+		while ((line=bReader.readLine())!=null) {
+			String revString=line.split("\\s{1,}")[0];
+			int commit_id=Integer.parseInt(line.split("\\s{1,}")[1]);
+			map.put(revString, commit_id);
+		}
+		bReader.close();
+		return map;
+	}
+	public List<String> getRevList(String file) throws IOException {
+		BufferedReader bReader = new BufferedReader(new FileReader(new File(
+				file)));
+		List<String> revList = new ArrayList<>();
+		String line = null;
+		while ((line = bReader.readLine()) != null) {
+			if (line.startsWith("commit")) {
+				revList.add(line.split("\\s{1,}")[1]);
+				bReader.readLine();
+				bReader.readLine();
+				bReader.readLine();
+				bReader.readLine();
+			}
+		}
+		bReader.close();
+		return revList;
+	}
+	
+	public void findLastChange(int commit_id,int file_id,Map<String, Integer> map,List<String> revList) throws SQLException {
+		sql="select rev from scmlog where id="+commit_id;
+		resultSet=stmt.executeQuery(sql);
+		String curString=null;
+		while (resultSet.next()) {
+			curString=resultSet.getString(1);
+		}
+		int mayLast=revList.indexOf(curString)+1;
+		while (mayLast<revList.size()) {
+			sql="select id from scmlog where rev=\""+revList.get(mayLast)+"\"";
+			resultSet=stmt.executeQuery(sql);
+			int nextId=0;
+			if (resultSet.next()) {
+				nextId=resultSet.getInt(1);
+				sql="select * from actions where commit_id="+nextId+" and file_id="+file_id;
+				resultSet=stmt.executeQuery(sql);
+				if (resultSet.next()) {
+					System.out.println("last change of "+commit_id+"_"+file_id+".java may be is "+nextId+"_"+file_id+".java");
+					return;
+				}
+			}
+				mayLast++;
+		}
+		System.out.println("can found the last change ,may be the file is the first edit");
 	}
 }

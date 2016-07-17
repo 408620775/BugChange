@@ -10,7 +10,7 @@ public class Main {
 	public static void main(String[] args) throws Exception {
       
 		ArffLoader arffLoader = new ArffLoader();
-		arffLoader.setFile(new File("eclipse_uf.arff"));
+		arffLoader.setFile(new File("tf.arff"));
 		Instances instances=arffLoader.getDataSet();
 		ClassifyCalculate classifyCalculate=new ClassifyCalculate(instances);
 		classifyCalculate.totalCal();
