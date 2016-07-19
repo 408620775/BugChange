@@ -15,7 +15,7 @@ public abstract class Classify {
 	Evaluation eval;
 	Instances ins;
 	List<Double> res;
-	private String className=" is_bug_intro";
+	public  String className="bug_introducing";
 /**
  * 返回分类器评估结果.
  * @return 模型评估结果
@@ -57,17 +57,21 @@ public abstract class Classify {
  * 分类器构造函数.
  * @param classifier 用于分类的分类器.
  * @param instances 用于构建分类器的实例集.
+ * @param claName 用于分类的类标签,默认为bug_introducing.
  */
-	public Classify(Classifier classifier, Instances instances) {
+	public Classify(Classifier classifier, Instances instances,String claName) {
 		this.cla = classifier;
 		this.ins = instances;
+		this.className=claName;
+		instances.setClass(instances.attribute(className));
 	}
 /**
  * 先通过分类器构造分类器类,稍后传入训练集.用于
  * @param classifier
  */
-	public Classify(Classifier classifier) {
+	public Classify(Classifier classifier,String claName) {
 		this.cla = classifier;
+		this.className=claName;
 	}
 
 	abstract void Evaluation() throws Exception;

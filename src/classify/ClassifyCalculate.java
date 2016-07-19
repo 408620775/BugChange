@@ -21,12 +21,14 @@ import weka.core.Instances;
  *
  */
 public class ClassifyCalculate {
-	String[] classifys = { "weka.classifiers.trees.J48", "weka.classifiers.bayes.NaiveBayes",
+	String[] classifys = { "weka.classifiers.trees.J48",
+			"weka.classifiers.bayes.NaiveBayes",
 			"weka.classifiers.functions.SMO" };
 	String[] methods = { "standard", "undersample", "oversample", "bagging",
 			"underBagging", "overBagging" };
 	Instances ins;
 	Map<List<String>, List<Double>> res;
+	String className="bug_introducing";
 
 	/**
 	 * 构造函数，初始化要使用的用例集。
@@ -34,21 +36,27 @@ public class ClassifyCalculate {
 	 * @param instances
 	 *            将要用于分类的用力集，可能是不均衡的数据。
 	 */
-	public ClassifyCalculate(Instances instances) {
+	public ClassifyCalculate(Instances instances, String claName) {
 		this.ins = instances;
-		res = new TreeMap<List<String>, List<Double>>(new Comparator<List<String>>() {
+		this.className=claName;
+		res = new TreeMap<List<String>, List<Double>>(
+				new Comparator<List<String>>() {
 
-			@Override
-			public int compare(List<String> o1, List<String> o2) {
-			if (!o1.get(0).equals(o2.get(0))) {
-				return o1.get(0).compareTo(o2.get(0));
-			}else {
-				return o1.get(1).compareTo(o2.get(1));
-			}
-			}		
-		});
+					@Override
+					public int compare(List<String> o1, List<String> o2) {
+						if (!o1.get(0).equals(o2.get(0))) {
+							return o1.get(0).compareTo(o2.get(0));
+						} else {
+							return o1.get(1).compareTo(o2.get(1));
+						}
+					}
+				});
 	}
 
+	/**
+	 * 针对不同的分类器不同的采样方法,获取不同情况下的分类评估结果.
+	 * @throws Exception
+	 */
 	public void totalCal() throws Exception {
 		List<Instances> subInstances = new ArrayList<>();
 		subInstances.add(ins);
@@ -62,7 +70,7 @@ public class ClassifyCalculate {
 				keyList.add(classifys[i]);
 		        keyList.add(methods[j]);	
 				classify = new SimpleClassify((Classifier) Class.forName(
-						classifys[i]).newInstance(), subInstances.get(j));
+						classifys[i]).newInstance(), subInstances.get(j),className);
 				classify.Evaluation();
 				res.put(keyList, classify.getRes());
 			}
@@ -72,7 +80,7 @@ public class ClassifyCalculate {
 				keyList.add(classifys[i]);
 				keyList.add(methods[j]);
 				classify = new BaggingClassify((Classifier) Class.forName(
-						classifys[i]).newInstance(), ins,j-3);
+						classifys[i]).newInstance(), ins,j-3,className);
 				classify.Evaluation();
 				res.put(keyList, classify.getRes());
 			}

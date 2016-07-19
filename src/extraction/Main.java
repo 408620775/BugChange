@@ -2,24 +2,26 @@ package extraction;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.List;
 import java.util.Map;
 
 public class Main {
 	static FileOperation fileOperation;
 
 	public static void main(String[] args) throws Exception {
-		// Test test=new Test();
-		Test test2 = new Test("voldemort");
-
-		// test.sortCommitByBranch("rev_id.txt", "log1");;
-		List<String> revList = test2.getRevList("log1");
-		Map<String, Integer> map = test2.getRev_idMap("rev_id.txt");
-		test2.findLastChange(727, 188, map, revList);
+		Test test=new Test();
+		test.compareData("tf.csv", "myVoldemort.csv", 723, 1165);
+		
+//		Extraction2 extraction2=new Extraction2("voldemort",501, 800);
+//		extraction2.extraFromTxt("voldeMetrics.txt");
+//		Extraction3 extraction3 = new Extraction3("voldemort",
+//				"voldeFiles", -1, -1);
+//		fileOperation = new FileOperation();
+//		Merge merge = new Merge(extraction3.getContent(), "voldemort");
+//		fileOperation.writeContent(merge.merge123(), "myVoldemort.csv");
+//		fileOperation.writeDict("dict.txt", extraction3.getDictionary());
 	}
 
 	static public void Automatic() throws Exception {
@@ -28,7 +30,7 @@ public class Main {
 		extraction1.Carry2();
 
 		Extraction2 extraction2 = new Extraction2("eclipse", 10001, 10500);
-		extraction2.extraFromTxt("metrics.txt", "File");
+		extraction2.extraFromTxt("metrics.txt");
 		extraction2.creatDeltMetrics();
 
 		Extraction3 extraction3 = new Extraction3("eclipse",
@@ -63,25 +65,11 @@ public class Main {
 		}
 	}
 
-	public static void exectMerge() throws SQLException, IOException {
-		String csvFileString = "/home/niu/test.csv";
-		String projectHomeString = "/home/niu/project";
-		Extraction3 extraction3 = new Extraction3("try", projectHomeString,
-				1000, 1499);
-		Map<List<Integer>, StringBuffer> content = extraction3.getContent();
-		FileOperation fileOperation = new FileOperation();
-		List<List<Integer>> commit_fileIds = extraction3.getCommitId_fileIds();
-		Merge merge = new Merge(content, commit_fileIds, "try");
-		merge.merge123();
-		FileOperation writeFile = new FileOperation();
-		writeFile.writeContent(content, csvFileString);
-		writeFile.writeDict("/home/niu/dict.txt", extraction3.dictionary);
+	
 
-	}
-
-	public static void exect2() throws FileNotFoundException, SQLException {
+	public static void exect2() throws SQLException, IOException {
 		Extraction2 extraction2 = new Extraction2("try", 1000, 1499);
-		extraction2.extraFromTxt("/home/niu/test/metrics.txt", "project");
+		extraction2.extraFromTxt("/home/niu/test/metrics.txt");
 		extraction2.creatDeltMetrics();
 	}
 }

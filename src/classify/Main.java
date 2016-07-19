@@ -10,9 +10,9 @@ public class Main {
 	public static void main(String[] args) throws Exception {
       
 		ArffLoader arffLoader = new ArffLoader();
-		arffLoader.setFile(new File("tf.arff"));
+		arffLoader.setFile(new File("myVoldemort.arff"));
 		Instances instances=arffLoader.getDataSet();
-		ClassifyCalculate classifyCalculate=new ClassifyCalculate(instances);
+		ClassifyCalculate classifyCalculate=new ClassifyCalculate(instances,"bug_introducing");
 		classifyCalculate.totalCal();
 		
 	//PreProcess.csvToArff("eclipse.csv", "eclipse.arff");

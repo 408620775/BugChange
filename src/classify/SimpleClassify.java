@@ -19,7 +19,7 @@ import weka.core.Instances;
  * @param res
  *            存储分类后得到的若干指标。该数组中的值按索引从小到大依次对应于
  *            C-Recall，B-Recall，C-Precision，B-Precision
- *            ，C-Fmesure，B-Fmeasure，AUC，Gmean，time(?totalcost?)
+ *            ，C-Fmesure，B-Fmeasure，AUC，Gmean
  * @author niu
  *
  */
@@ -35,13 +35,13 @@ public class SimpleClassify extends Classify{
 	 * @param cla
 	 *            使用的分类器。
 	 */
-	public SimpleClassify( Classifier cla,Instances ins) {
-		super(cla, ins);
-		ins.setClass(ins.attribute(" is_bug_intro"));
+	public SimpleClassify( Classifier cla,Instances ins,String claName) {
+		super(cla, ins,claName);
+		ins.setClass(ins.attribute(className));
 	}
 
-	public SimpleClassify(Classifier cla) {
-		super(cla);
+	public SimpleClassify(Classifier cla,String claName) {
+		super(cla,claName);
 	}
 
 	/**
@@ -55,6 +55,8 @@ public	void Evaluation() throws Exception {
 		res = new ArrayList<>();
 		eval = new Evaluation(ins);
 		eval.crossValidateModel(cla, ins, 10, new Random());
+		System.out.println(0+"---"+ins.attribute(ins.classIndex()).indexOfValue("turee"));
+		System.out.println(1+"---"+ins.attribute(ins.classIndex()).indexOfValue("1"));
 		res.add(eval.recall(0));
 		res.add(eval.recall(1));
 		res.add(eval.precision(0));
@@ -63,6 +65,6 @@ public	void Evaluation() throws Exception {
 		res.add(eval.fMeasure(1));
 		res.add(eval.areaUnderROC(1));
 		res.add(Math.sqrt(res.get(0)* res.get(1)));
-		res.add(eval.totalCost());
+		
 	}
 }

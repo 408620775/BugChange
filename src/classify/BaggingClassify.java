@@ -26,9 +26,9 @@ public class BaggingClassify extends Classify {
  * @param ou 
  * @throws Exception
  */
-	public BaggingClassify(Classifier classifier, Instances instances, int ou)
+	public BaggingClassify(Classifier classifier, Instances instances, int ou,String claName)
 			throws Exception {
-		super(classifier, instances);
+		super(classifier, instances,claName);
 
 
 		judge=ou;
@@ -36,7 +36,7 @@ public class BaggingClassify extends Classify {
 
 	}
 
-	@Override
+
 	void Evaluation() throws Exception {
 		if (judge == 0) {
 			bagging = new Bagging();
@@ -53,7 +53,6 @@ public class BaggingClassify extends Classify {
 			res.add(eval.fMeasure(1));
 			res.add(eval.areaUnderROC(1));
 			res.add(Math.sqrt(res.get(0) * res.get(1)));
-			res.add(eval.totalCost());
 			return;
 		}
 		int loop = 0;
