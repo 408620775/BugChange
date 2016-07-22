@@ -11,8 +11,11 @@ public class Main {
 	static FileOperation fileOperation;
 
 	public static void main(String[] args) throws Exception {
-		Test test=new Test();
-		test.compareData("tf.csv", "myVoldemort.csv", 723, 1165);
+		/*Test test=new Test();
+		test.compareData("tf.csv", "myVoldemort.csv", 723, 1165);*/
+		Extraction1 extraction1 = new Extraction1("eclipse", -1, -1); // 虽然只选取了300次commit，为了辨识这300次commit，
+		extraction1.Carry1(); // //所有的commit都要处理。
+		extraction1.Carry2();
 		
 //		Extraction2 extraction2=new Extraction2("voldemort",501, 800);
 //		extraction2.extraFromTxt("voldeMetrics.txt");
@@ -24,8 +27,9 @@ public class Main {
 //		fileOperation.writeDict("dict.txt", extraction3.getDictionary());
 	}
 
-	static public void Automatic() throws Exception {
-		Extraction1 extraction1 = new Extraction1("voldemort", -1, -1); // 虽然只选取了300次commit，为了辨识这300次commit，
+	static public void Automatic(String database) throws Exception {
+		
+		Extraction1 extraction1 = new Extraction1(database, -1, -1); // 虽然只选取了300次commit，为了辨识这300次commit，
 		extraction1.Carry1(); // //所有的commit都要处理。
 		extraction1.Carry2();
 

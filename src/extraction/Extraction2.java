@@ -163,7 +163,12 @@ public class Extraction2 extends Extraction {
 		}
 		if (patch == null) {
 			System.out.println("the patch of " + curFile + " is null");
+			String line=null;
+			while ((line=bReader.readLine())!=null) {
+				bWriter.append(line+"\n");
+			}
 			bReader.close();
+			bWriter.flush();
 			bWriter.close();
 			return;
 		}
