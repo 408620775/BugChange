@@ -65,6 +65,22 @@ public class Extraction3 extends Extraction {
 			int endId) throws SQLException, IOException {
 		super(database);
 		id_commitId_fileIds = new ArrayList<>();
+		setCommitId_fileIds(startId, endId);
+		dictionary = new HashMap<>();
+		dictionary2 = new HashMap<>();
+		currStrings = new HashSet<>();
+		content = new HashMap<>();
+		colMap = new HashMap<>();
+
+		// 这里的startId和endId相对父类的有点乱。
+		changeLogInfo();
+		sourceInfo(projectHome);
+		pathInfo();
+	}
+
+	public Extraction3(String database, List<List<Integer>> icf_id,String projectHome) throws SQLException, IOException {
+		super(database);
+		setCommitId_fileIds(icf_id);
 		dictionary = new HashMap<>();
 		dictionary2 = new HashMap<>();
 		currStrings = new HashSet<>();
@@ -74,13 +90,21 @@ public class Extraction3 extends Extraction {
 		headmap.add(-1);
 		headmap.add(-1);
 		headmap.add(-1);
+		StringBuffer head = new StringBuffer("id,commit_id,file_id,");
+		content.put(headmap, head);
+		for (List<Integer> list : id_commitId_fileIds) {
+			if (list.get(0)!=-1) {
+				StringBuffer write = new StringBuffer( list.get(0)+ ","
+						+ list.get(1) + "," + list.get(2) + ",");
+				content.put(list, write);
+			}
+		}
+		
 		// 这里的startId和endId相对父类的有点乱。
-		initial(startId, endId);
 		changeLogInfo();
 		sourceInfo(projectHome);
 		pathInfo();
 	}
-
 	/**
 	 * 初始化实例集的keyset，实际上由于extraction1中包含的信息远多与实际想要分析的，
 	 * 所以默认分析(start==-1||end==-1)时，应该以extraction2为基准分析。
@@ -93,29 +117,7 @@ public class Extraction3 extends Extraction {
 	 * @throws IOException
 	 */
 	public void initial(int start, int end) throws SQLException, IOException {
-		if (start == -1 || end == -1) {
-			sql = "select id,commit_id,file_id from extraction2";
-		} else {
-			sql = "select id,commit_id,file_id from extraction2 where id>="
-					+ start + " and id<" + end;
-		}
-
-		resultSet = stmt.executeQuery(sql);
-		// 加入表头项到csv文件中。
-		StringBuffer head = new StringBuffer("id,commit_id,file_id,");
-		id_commitId_fileIds.add(headmap);
-		content.put(headmap, head);
-		// 初始化各实例的key(id,commit_id,file_id);
-		while (resultSet.next()) {
-			List<Integer> temp = new ArrayList<>();
-			temp.add(resultSet.getInt(1));
-			temp.add(resultSet.getInt(2));
-			temp.add(resultSet.getInt(3));
-			id_commitId_fileIds.add(temp); // 记录id,commit_id和file_id以备后用。
-			StringBuffer write = new StringBuffer(resultSet.getInt(1) + ","
-					+ resultSet.getInt(2) + "," + resultSet.getInt(3) + ",");
-			content.put(temp, write);
-		}
+		
 	}
 
 	/**
@@ -372,6 +374,35 @@ public class Extraction3 extends Extraction {
 		return id_commitId_fileIds;
 	}
 
+	public void setCommitId_fileIds(int start,int end) throws SQLException {
+		headmap = new ArrayList<>();
+		headmap.add(-1);
+		headmap.add(-1);
+		headmap.add(-1);
+		StringBuffer head = new StringBuffer("id,commit_id,file_id,");
+		id_commitId_fileIds.add(headmap);
+		content.put(headmap, head);
+		
+		if (start == -1 || end == -1) {
+			sql = "select id,commit_id,file_id from extraction2";
+		} else {
+			sql = "select id,commit_id,file_id from extraction2 where id>="
+					+ start + " and id<" + end;
+		}
+
+		resultSet = stmt.executeQuery(sql);
+		while (resultSet.next()) {
+			List<Integer> temp = new ArrayList<>();
+			temp.add(resultSet.getInt(1));
+			temp.add(resultSet.getInt(2));
+			temp.add(resultSet.getInt(3));
+			id_commitId_fileIds.add(temp); // 记录id,commit_id和file_id以备后用。
+			StringBuffer write = new StringBuffer(resultSet.getInt(1) + ","
+					+ resultSet.getInt(2) + "," + resultSet.getInt(3) + ",");
+			content.put(temp, write);
+		}
+		
+	}
 	public void setCommitId_fileIds(List<List<Integer>> commitId_fileIds) {
 		this.id_commitId_fileIds = commitId_fileIds;
 	}

@@ -5,52 +5,69 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Map;
 
 public class Main {
 	static FileOperation fileOperation;
 
 	public static void main(String[] args) throws Exception {
-		/*Test test=new Test();
-		test.compareData("tf.csv", "myVoldemort.csv", 723, 1165);*/
-		Extraction1 extraction1 = new Extraction1("eclipse", -1, -1); // 虽然只选取了300次commit，为了辨识这300次commit，
-		extraction1.Carry1(); // //所有的commit都要处理。
-		extraction1.Carry2();
-		
-//		Extraction2 extraction2=new Extraction2("voldemort",501, 800);
-//		extraction2.extraFromTxt("voldeMetrics.txt");
-//		Extraction3 extraction3 = new Extraction3("voldemort",
-//				"voldeFiles", -1, -1);
-//		fileOperation = new FileOperation();
-//		Merge merge = new Merge(extraction3.getContent(), "voldemort");
-//		fileOperation.writeContent(merge.merge123(), "myVoldemort.csv");
-//		fileOperation.writeDict("dict.txt", extraction3.getDictionary());
+		/*
+		 * Test test=new Test(); test.compareData("tf.csv", "myVoldemort.csv",
+		 * 723, 1165);
+		 */
+//		Extraction1 extraction1 = new Extraction1("eclipse", -1, -1); // 虽然只选取了300次commit，为了辨识这300次commit，
+//		extraction1.Carry1(); // //所有的commit都要处理。
+//		extraction1.Carry2();
+
+
+		Extraction2 extraction2 = new Extraction2("eclipse", 10001,
+				10500);
+		extraction2.extraFromTxt("MyEclipseMetrics.txt");
+		Map<List<Integer>,StringBuffer> sb=extraction2.getContentMap();
+		System.out.println(sb.size());
+		 Extraction3 extraction3 = new Extraction3("eclipse",extraction2.getId_commitId_fileIds(),
+		 "eclipseFiles");
+		 fileOperation = new FileOperation();
+		 Merge merge = new Merge(extraction3.getContent(), extraction2.getContentMap(),extraction2.getId_commitId_fileIds(),"eclipse");
+		 fileOperation.writeContent(merge.merge123(), "MyEclipse.csv");
+		 fileOperation.writeDict("dict.txt", extraction3.getDictionary());
 	}
 
-	static public void Automatic(String database) throws Exception {
-		
-		Extraction1 extraction1 = new Extraction1(database, -1, -1); // 虽然只选取了300次commit，为了辨识这300次commit，
-		extraction1.Carry1(); // //所有的commit都要处理。
+	static public void Automatic1(String project, int start_commit_id,
+			int end_commit_id) throws Exception {
+		String database = "My"
+				+ project.toLowerCase().substring(0, 1).toLowerCase()
+				+ project.toLowerCase().substring(1);
+		Extraction1 extraction1 = new Extraction1(database, -1, -1);
+		extraction1.Carry1();
 		extraction1.Carry2();
 
-		Extraction2 extraction2 = new Extraction2("eclipse", 10001, 10500);
+		Extraction2 extraction2 = new Extraction2(database, start_commit_id,
+				end_commit_id);
+		extraction2.Get_icfId();
+		Process process = Runtime.getRuntime().exec(
+				"/bin/sh /home/niu/workspace/changeClassify/src/extraction/GetFile.sh "
+						+ project);
+		System.out.println("the exit value of process is "
+				+ process.exitValue());
+	}
+
+	static public void Automatic2(String project, int start_commit_id,
+			int end_commit_id) throws SQLException, IOException {
+		String database = "My"
+				+ project.toLowerCase().substring(0, 1).toLowerCase()
+				+ project.toLowerCase().substring(1);
+		Extraction2 extraction2 = new Extraction2(database, start_commit_id,
+				end_commit_id);
 		extraction2.extraFromTxt("metrics.txt");
-		extraction2.creatDeltMetrics();
-
-		Extraction3 extraction3 = new Extraction3("eclipse",
-				"/home/niu/test/eclipseProject", -1, -1);
+		Extraction3 extraction3 = new Extraction3(database, project + "Files",
+				-1, -1);
 		fileOperation = new FileOperation();
-		Merge merge = new Merge(extraction3.getContent(), "eclipse");
-		fileOperation.writeContent(merge.merge123(), "eclipse.csv");
-		fileOperation.writeDict("dict.txt", extraction3.getDictionary());
-	}
-
-	static public void testMatch() {
-		String test = new String("http://hello.com");
-		String[] arrayStrings = test.split("//");
-		for (String string : arrayStrings) {
-			System.out.println(string);
-		}
+		Merge merge = new Merge(extraction3.getContent(), database);
+		fileOperation.writeContent(merge.merge123(), database + ".csv");
+		fileOperation.writeDict(database + "Dict.txt",
+				extraction3.getDictionary());
 	}
 
 	static public void testBow(String fileName) throws IOException {
@@ -68,8 +85,6 @@ public class Main {
 			System.out.println(s + "    " + bag.get(s));
 		}
 	}
-
-	
 
 	public static void exect2() throws SQLException, IOException {
 		Extraction2 extraction2 = new Extraction2("try", 1000, 1499);

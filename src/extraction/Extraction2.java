@@ -41,6 +41,12 @@ public class Extraction2 extends Extraction {
 	Set<String> preFiles;
 	Set<String> attributes;
 	Map<String, Map<String, Double>> grid;
+	Map<List<Integer>, StringBuffer> contentMap;
+	List<List<Integer>> id_commitId_fileIds;
+
+	public List<List<Integer>> getId_commitId_fileIds() {
+		return id_commitId_fileIds;
+	}
 
 	// 不包括id,commit_id,file_id
 	/**
@@ -163,9 +169,9 @@ public class Extraction2 extends Extraction {
 		}
 		if (patch == null) {
 			System.out.println("the patch of " + curFile + " is null");
-			String line=null;
-			while ((line=bReader.readLine())!=null) {
-				bWriter.append(line+"\n");
+			String line = null;
+			while ((line = bReader.readLine()) != null) {
+				bWriter.append(line + "\n");
 			}
 			bReader.close();
 			bWriter.flush();
@@ -191,7 +197,9 @@ public class Extraction2 extends Extraction {
 					bWriter.append(line + "\n");
 					readIndex++;
 				}
+				bWriter.flush();
 				i++;
+
 				while (i < lines.length && (!lines[i].startsWith("@@"))) {
 					if (lines[i].startsWith("-")) {
 						bWriter.append(lines[i].substring(1, lines[i].length())
@@ -203,11 +211,12 @@ public class Extraction2 extends Extraction {
 					}
 					i++;
 				}
+				bWriter.flush();
 				readIndex = readIndex + shiftF;
 				for (int j = 0; j < shiftF; j++) {
 					bReader.readLine();
 				}
-				i = i -1;
+				i = i - 1;
 			}
 		}
 
@@ -265,14 +274,64 @@ public class Extraction2 extends Extraction {
 						Map<String, Double> temp = new HashMap<>();
 						temp.put(fileName, value);
 						grid.put(attribute, temp);
-
 					}
 				}
 			}
 		}
+		
+		
 		bReader.close();
-		creatDeltMetrics();
-		createDatabase();
+		creatDeltMetrics();		
+		buildContentMap();
+		
+		// createDatabase(); // 可选择是否写入数据库
+	}
+
+	public Map<List<Integer>, StringBuffer> getContentMap() {
+		return contentMap;
+	}
+
+	public Map<List<Integer>, StringBuffer> buildContentMap() {
+		contentMap = new HashMap<>();
+		id_commitId_fileIds = new ArrayList<>();
+		List<Integer> title = new ArrayList<>();
+		title.add(-1);
+		title.add(-1);
+		title.add(-1);
+		id_commitId_fileIds.add(title);
+		StringBuffer titleBuffer = new StringBuffer();
+		for (String attri : attributes) {
+				titleBuffer.append(attri + ",");
+		}
+		contentMap.put(title, titleBuffer);
+		
+		int id = 1;
+		for (String file : curFiles) {
+			int commit_id = Integer.parseInt(file.split("_")[0]);
+			int file_id = Integer.parseInt(file.substring(0, file.indexOf('.'))
+					.split("_")[1]);
+			List<Integer> cf = new ArrayList<>();
+			cf.add(id);
+			cf.add(commit_id);
+			cf.add(file_id);
+			id++;
+			id_commitId_fileIds.add(cf);
+			StringBuffer temp = new StringBuffer();
+			for (String attri : attributes) {
+					if (grid.get(attri).containsKey(file)) {
+						temp.append(grid.get(attri).get(file) + ",");
+					} else {
+						temp.append(0 + ",");
+					}
+			}
+			contentMap.put(cf, temp);
+		}
+//		List<Integer> test=new ArrayList<>();
+//		test.add(1);
+//		test.add(10011);
+//		test.add(38051);
+//		System.out.println(contentMap.get(test));
+		return contentMap;
 	}
 
 	private void createDatabase() throws SQLException {

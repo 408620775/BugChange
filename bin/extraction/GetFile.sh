@@ -2,10 +2,9 @@
 gitFile=$1
 FilePath=/home/niu/test/
 cd $FilePath$gitFile
-mkdir ../$1"Files"
 cat /home/niu/workspace/changeClassify/cfrc.txt | while read commit_id file_id rev current_file_path
 do
-
+mkdir ../$1"Files"
 git reset $rev $current_file_path
 git checkout $current_file_path
   
