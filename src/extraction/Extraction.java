@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * 提取数据的超类。
  * <p>
- * 根据commit的排序，提取制定范围内所有commit的若干信息。若干信息的提取分别
+ * 将commit按照时间排序，提取指定范围内所有commit的若干信息。若干信息的提取分别
  * 由三个子类去实现。需要注意的是，由于miningit分配给各commit的id并不是其实际提交的
  * 顺序（由于多线程并发导致），所以对于commit的排序不应根据其id排序，而应根据 commit_date排序。
  * 
@@ -31,8 +31,8 @@ public class Extraction {
 	Statement stmt;
 	ResultSet resultSet;
 	List<Integer> commit_ids;
-	 final int start;
-	 final int end;
+	final int start;
+	final int end;
 
 	/**
 	 * 连接数据库，初始化变量值，为数据的提取做准备。
@@ -53,27 +53,20 @@ public class Extraction {
 		start = s;
 		end = e;
 		commit_ids = new ArrayList<>();
-		if (s == -1 || e == -1) {
-			setCommit_idA();
-		} else {
-			if (s < 0) {
-				throw new Exception("错误的起始序号");
-			}
-			setCommit_id();
-		}
+		sortCommit_id();
 	}
 
 	/**
 	 * extraction2提取信息并不需要miningit生成的数据，此构造函数只是为了统一接口。
 	 * 
 	 * @param database
-	 * @throws SQLException 
+	 * @throws SQLException
 	 */
 	public Extraction(String database) throws SQLException { // 为extraction2提供构造函数。
 		sqlL = new SQLConnection(database);
 		this.stmt = sqlL.getStmt();
 		commit_ids = new ArrayList<>();
-		setCommit_idA();
+		sortCommit_id();
 		start = 0; // 实际没有用到
 		end = 0; // 实际没有用到
 	}
@@ -92,7 +85,7 @@ public class Extraction {
 	 * 
 	 * @throws SQLException
 	 */
-	public void setCommit_idA() throws SQLException {
+	public void sortCommit_id() throws SQLException {
 		sql = "select id from scmlog order by commit_date";
 		resultSet = stmt.executeQuery(sql);
 		while (resultSet.next()) {
@@ -100,23 +93,4 @@ public class Extraction {
 		}
 	}
 
-	/**
-	 * 提取scmlog中指定范围内按时间排序的commit_id列表。这个函数似乎是没用的，因为对于extraction1表的生成，
-	 * 需要所有的commit_id。对于extraction2，其指定的序号都是全局范围内的commit_id序号
-	 * 
-	 * @throws SQLException
-	 */
-	public void setCommit_id() throws SQLException {
-		commit_ids = new ArrayList<>();
-		sql = "select id from scmlog order by commit_date";
-		resultSet = stmt.executeQuery(sql);
-		int index = 0;
-		while (index < start && resultSet.next()) {
-			index++;
-		}
-		for (int i = start; i < end; i++) {
-			commit_ids.add(resultSet.getInt(1));
-			resultSet.next();
-		}
-	}
 }

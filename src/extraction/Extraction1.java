@@ -14,12 +14,11 @@ import java.util.Map.Entry;
  * 根据指定的范围获取commit_id列表（按照时间顺序）。通过对各表的操作获取一些基本数据。
  * 除了基本表，miningit还需执行extension=bugFixMessage，metrics
  * 
- * @param sql
- *            用以提取数据并存放处理后的数据的数据库。
- * @param start
- *            指定的commit的起始值（按照时间排序）。
- * @param end
- *            指定的commit的结束值（按照时间排序）。
+ * @param commitIdPart
+ *            指定范围内的commit的id（按照时间排序）。由于数据库的存取会消耗大量时间,
+ *            所以可以用该list来替代父类中的commit_ids
+ *            这样使得提取某些属性值的时候可以只针对指定数据提取,而非所有的extraction1表中的数据
+ *            ,以此节约时间.需要注意的是,累计的信息的提取,例如累计的bug计数,需要extraction1中所有的数据参与.
  * @author niu
  *
  */
@@ -123,7 +122,7 @@ public class Extraction1 extends Extraction {
 	}
 
 	/**
-	 * 获取作者姓名。
+	 * 获取作者姓名。如果excuteAll为真,则获取extraction1中所有数据的作者.否则只获取commit_id在commitIdPart中的数据的作者.
 	 * 
 	 * @throws SQLException
 	 */
@@ -146,7 +145,7 @@ public class Extraction1 extends Extraction {
 	}
 
 	/**
-	 * 获取提交的日期，以星期标示。
+	 * 获取提交的日期，以星期标示。如果excuteAll为真,则获取extraction1中所有数据的日期.否则只获取commit_id在commitIdPart中的数据的日期.
 	 * 
 	 * @throws SQLException
 	 */
@@ -187,7 +186,7 @@ public class Extraction1 extends Extraction {
 	}
 
 	/**
-	 * 获取提交的时间，以小时标示。
+	 * 获取提交的时间，以小时标示。如果excuteAll为真,则获取extraction1中所有数据的时间.否则只获取commit_id在commitIdPart中的数据的时间.
 	 * 
 	 * @throws NumberFormatException
 	 * @throws SQLException
@@ -223,7 +222,7 @@ public class Extraction1 extends Extraction {
 	}
 
 	/**
-	 * 获取changlog的长度。
+	 * 获取changlog的长度。如果excuteAll为真,则获取extraction1中所有数据的changlog长度.否则只获取commit_id在commitIdPart中的数据的changelog长度.
 	 * 
 	 * @throws SQLException
 	 */
@@ -355,13 +354,14 @@ public class Extraction1 extends Extraction {
 		System.out.println("get changed loc");
 		List<Integer> excuteList;
 		if (excuteAll) {
-			excuteList=commit_ids;
-		}else {
-			excuteList=commitIdPart;
+			excuteList = commit_ids;
+		} else {
+			excuteList = commitIdPart;
 		}
 		List<List<Integer>> re = new ArrayList<>();
 		for (Integer integer : excuteList) {
-			sql = "select id,file_id from extraction1 where commit_id="+integer;
+			sql = "select id,file_id from extraction1 where commit_id="
+					+ integer;
 			resultSet = stmt.executeQuery(sql);
 			while (resultSet.next()) {
 				List<Integer> temp = new ArrayList<>();
@@ -409,12 +409,7 @@ public class Extraction1 extends Extraction {
 			}
 		}
 		for (Integer integer : ids) {
-			sql = "select  id,file_id from hunks where commit_id=" + integer; // tong
-																				// guo
-																				// group
-																				// by
-																				// tisheng
-																				// xingneng
+			sql = "select  id,file_id from hunks where commit_id=" + integer; 
 			resultSet = stmt.executeQuery(sql);
 			List<List<Integer>> hunkFileId = new ArrayList<>(); // 有些只是行错位了也会被标记为bug_introducing。但是作为hunks的一部分好像也成。
 			while (resultSet.next()) {

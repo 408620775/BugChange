@@ -14,8 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-
-
 /**
  * 提取源码信息路径信息。
  * 
@@ -65,7 +63,7 @@ public class Extraction3 extends Extraction {
 			int endId) throws SQLException, IOException {
 		super(database);
 		id_commitId_fileIds = new ArrayList<>();
-		setCommitId_fileIds(startId, endId);
+		setICFfromDatabase(startId, endId);
 		dictionary = new HashMap<>();
 		dictionary2 = new HashMap<>();
 		currStrings = new HashSet<>();
@@ -78,7 +76,8 @@ public class Extraction3 extends Extraction {
 		pathInfo();
 	}
 
-	public Extraction3(String database, List<List<Integer>> icf_id,String projectHome) throws SQLException, IOException {
+	public Extraction3(String database, List<List<Integer>> icf_id,
+			String projectHome) throws SQLException, IOException {
 		super(database);
 		setCommitId_fileIds(icf_id);
 		dictionary = new HashMap<>();
@@ -93,18 +92,19 @@ public class Extraction3 extends Extraction {
 		StringBuffer head = new StringBuffer("id,commit_id,file_id,");
 		content.put(headmap, head);
 		for (List<Integer> list : id_commitId_fileIds) {
-			if (list.get(0)!=-1) {
-				StringBuffer write = new StringBuffer( list.get(0)+ ","
+			if (list.get(0) != -1) {
+				StringBuffer write = new StringBuffer(list.get(0) + ","
 						+ list.get(1) + "," + list.get(2) + ",");
 				content.put(list, write);
 			}
 		}
-		
+
 		// 这里的startId和endId相对父类的有点乱。
 		changeLogInfo();
 		sourceInfo(projectHome);
 		pathInfo();
 	}
+
 	/**
 	 * 初始化实例集的keyset，实际上由于extraction1中包含的信息远多与实际想要分析的，
 	 * 所以默认分析(start==-1||end==-1)时，应该以extraction2为基准分析。
@@ -117,7 +117,7 @@ public class Extraction3 extends Extraction {
 	 * @throws IOException
 	 */
 	public void initial(int start, int end) throws SQLException, IOException {
-		
+
 	}
 
 	/**
@@ -228,7 +228,7 @@ public class Extraction3 extends Extraction {
 			if (list.get(1) != -1) {
 				System.out.println("extract from " + list.get(1) + "_"
 						+ list.get(2) + ".java");
-	
+
 				sql = "select patch from patches where commit_id="
 						+ list.get(1) + " and file_id=" + list.get(2);
 				bow = new Bow();
@@ -258,7 +258,6 @@ public class Extraction3 extends Extraction {
 						sBuffer.append(s + "\n");
 					}
 				}
-
 
 				File sourceFile = new File(projectHome + "/" + list.get(1)
 						+ "_" + list.get(2) + ".java");
@@ -370,11 +369,23 @@ public class Extraction3 extends Extraction {
 		}
 	}
 
+	/**
+	 * 获取表extraction3的主键.
+	 * 
+	 * @return
+	 */
 	public List<List<Integer>> getCommitId_fileIds() {
 		return id_commitId_fileIds;
 	}
 
-	public void setCommitId_fileIds(int start,int end) throws SQLException {
+	/**
+	 * 根据数据库中的extraction2设置id_commitId_fileIds.
+	 * 
+	 * @param start
+	 * @param end
+	 * @throws SQLException
+	 */
+	public void setICFfromDatabase(int start, int end) throws SQLException {
 		headmap = new ArrayList<>();
 		headmap.add(-1);
 		headmap.add(-1);
@@ -382,7 +393,7 @@ public class Extraction3 extends Extraction {
 		StringBuffer head = new StringBuffer("id,commit_id,file_id,");
 		id_commitId_fileIds.add(headmap);
 		content.put(headmap, head);
-		
+
 		if (start == -1 || end == -1) {
 			sql = "select id,commit_id,file_id from extraction2";
 		} else {
@@ -401,29 +412,47 @@ public class Extraction3 extends Extraction {
 					+ resultSet.getInt(2) + "," + resultSet.getInt(3) + ",");
 			content.put(temp, write);
 		}
-		
+
 	}
+
+	/**
+	 * 根据给定的参数设置表extraction3的主键.
+	 * 
+	 * @param commitId_fileIds
+	 */
 	public void setCommitId_fileIds(List<List<Integer>> commitId_fileIds) {
 		this.id_commitId_fileIds = commitId_fileIds;
 	}
 
+	/**
+	 * 获取extraction3的内容.
+	 * 
+	 * @return
+	 */
 	public Map<List<Integer>, StringBuffer> getContent() {
 		for (List<Integer> key : content.keySet()) {
-			StringBuffer temp=content.get(key);
-			content.put(key, new StringBuffer(temp.subSequence(0, temp.length()-1)));
+			StringBuffer temp = content.get(key);
+			content.put(key,
+					new StringBuffer(temp.subSequence(0, temp.length() - 1)));
 		}
 		return content;
 	}
 
+	/**
+	 * 设置表extraction3的内容.
+	 * 
+	 * @param content
+	 */
 	public void setContent(Map<List<Integer>, StringBuffer> content) {
 		this.content = content;
 	}
 
+	/**
+	 * 获取文本解析后的字典.
+	 * 
+	 * @return
+	 */
 	public Map<String, String> getDictionary() {
 		return dictionary;
-	}
-
-	public void setDictionary(Map<String, String> dictionary) {
-		this.dictionary = dictionary;
 	}
 }

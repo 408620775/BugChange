@@ -13,8 +13,10 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+
 /**
  * 文件操作类，主要用于将得到的数据写入csv文件。
+ * 
  * @author niu
  *
  */
@@ -24,16 +26,35 @@ public class FileOperation {
 	Statement stmt;
 	ResultSet resultSet;
 	List<Integer> commit_ids;
-	
 	List<List<Integer>> id_commit_fileIds;
+
+	/**
+	 * 获取文本的主键.
+	 * 
+	 * @return
+	 */
 	public List<List<Integer>> getId_commit_fileIds() {
 		return id_commit_fileIds;
 	}
 
+	/**
+	 * 设置文本操作的主键.
+	 * 
+	 * @param id_commit_fileIds
+	 */
 	public void setId_commit_fileIds(List<List<Integer>> id_commit_fileIds) {
 		this.id_commit_fileIds = id_commit_fileIds;
 	}
 
+	/**
+	 * 写字典.
+	 * 
+	 * @param dict
+	 *            字典名称
+	 * @param dictionary
+	 *            字典内容
+	 * @throws IOException
+	 */
 	public void writeDict(String dict, Map<String, String> dictionary)
 			throws IOException {
 		File di = new File(dict);
@@ -45,6 +66,15 @@ public class FileOperation {
 		br.close();
 	}
 
+	/**
+	 * 写反序字典
+	 * 
+	 * @param dict
+	 *            反序字典名称
+	 * @param dictionary
+	 *            反序字典内容
+	 * @throws IOException
+	 */
 	public void writeColName(String dict, Map<String, String> dictionary)
 			throws IOException {
 		File di = new File(dict);
@@ -60,12 +90,16 @@ public class FileOperation {
 		br.flush();
 		br.close();
 	}
-/**
- * 将Merge整合的数据写入csv文件
- * @param content 需要写入的文件
- * @param csvFile 被写入的文件名
- * @throws IOException
- */
+
+	/**
+	 * 将Merge整合的数据写入csv文件
+	 * 
+	 * @param content
+	 *            需要写入的文件
+	 * @param csvFile
+	 *            被写入的文件名
+	 * @throws IOException
+	 */
 	public void writeContent(Map<List<Integer>, StringBuffer> content,
 			String csvFile) throws IOException {
 
@@ -77,10 +111,10 @@ public class FileOperation {
 		Collections.sort(keySet, new Comparator<List<Integer>>() {
 			@Override
 			public int compare(List<Integer> o1, List<Integer> o2) {
-				return o1.get(0).intValue()-o2.get(0).intValue();
+				return o1.get(0).intValue() - o2.get(0).intValue();
 			}
 		});
-		
+
 		for (List<Integer> list : keySet) {
 			stringBuffer = content.get(list).append("\n"); // 哪里多加了个换行？
 			bw.write(stringBuffer.toString());
@@ -119,30 +153,32 @@ public class FileOperation {
 	public List<List<Integer>> secondSort(List<List<Integer>> keySet) {
 		int start = 0;
 		int end = 0;
-		while (end<keySet.size()) {
-			while (end<keySet.size()&&(keySet.get(start).get(0).intValue() == keySet.get(end).get(0).intValue())) {
+		while (end < keySet.size()) {
+			while (end < keySet.size()
+					&& (keySet.get(start).get(0).intValue() == keySet.get(end)
+							.get(0).intValue())) {
 				end++;
 			}
 			end--;
-			if (end==start) {
-				start=end+1;
-				end=start;
+			if (end == start) {
+				start = end + 1;
+				end = start;
 				continue;
 			}
-			for (int i = start; i <end; i++) {
-				for (int j = end; j >i; j--) {
-					if (keySet.get(j).get(1).intValue()<keySet.get(j-1).get(1).intValue()) {
-						List<Integer> temp=keySet.get(j-1);
-						keySet.remove(j-1);
+			for (int i = start; i < end; i++) {
+				for (int j = end; j > i; j--) {
+					if (keySet.get(j).get(1).intValue() < keySet.get(j - 1)
+							.get(1).intValue()) {
+						List<Integer> temp = keySet.get(j - 1);
+						keySet.remove(j - 1);
 						keySet.add(j, temp);
 					}
 				}
 			}
 			end++;
-			start=end;
+			start = end;
 		}
 		return keySet;
 	}
-	
 
 }

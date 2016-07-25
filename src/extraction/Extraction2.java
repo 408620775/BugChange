@@ -17,24 +17,34 @@ import java.util.Set;
 import java.util.TreeSet;
 
 /**
- * 针对某分为内的commit_id的file_id，提取understand得到的复杂度信息。
+ * 针对某范围内的(commit_id,file_id)对，得到其对应的文件(curFiles),并根据patch得到每个文件的上一次更改时的版本(
+ * preFiles).对这些文件使用understand提取复杂度信息。最终得到curFiles中每个文件的复杂度及delta复杂度.
  * 为了防止程序规模过大，一般在进行bug分类的时候，数据选取extraction1中一部分实例。而extraction2则是针对extraction1
  * 中选择出的实例利用understand得到这些实例对应的文件的复杂度量。
  * 
+ * @param icf_id
+ *            存放id,commit_id,file_id三元祖的集合.每个三元组标示extraction2中的一项数据头.
+ * @param curFile
+ *            当前的文件集合.
+ * @param preFile
+ *            curFile中文件对应的上一版本的文件的集合
  * @param attribute
  *            存储所有属性的列表
  * @param startId
  *            extraction1中选取实例范围的起始id，注意，不是起始的commit_id。
  * @param endId
  *            extraction1中选取实例范围的终止id。
+ * @param grid
+ *            复杂度的map表示形式,外部key为属性,内部key为文件标示(commit_id,file_id对),内部Double为复杂度的值
+ * @param contentMap
+ *            复杂度的表格表示形式(即任意属性和任意文件的结合,都可得到其复杂度),用于输出至csv文件中.
+ * @param id_commitId_fileIds
+ *            extraction2的主键,也是最终csv文件输出的主键.
  * @author niu
  *
  */
 public class Extraction2 extends Extraction {
-
 	TreeSet<List<Integer>> icf_id;
-	Map<List<Integer>, List<Integer>> match;
-	Map<List<Integer>, List<Integer>> cpMap;
 	int startId;
 	int endId;
 	Set<String> curFiles;
@@ -44,6 +54,11 @@ public class Extraction2 extends Extraction {
 	Map<List<Integer>, StringBuffer> contentMap;
 	List<List<Integer>> id_commitId_fileIds;
 
+	/**
+	 * 获取主键队列.
+	 * 
+	 * @return
+	 */
 	public List<List<Integer>> getId_commitId_fileIds() {
 		return id_commitId_fileIds;
 	}
@@ -126,6 +141,14 @@ public class Extraction2 extends Extraction {
 		bWriter.close();
 	}
 
+	/**
+	 * 对于给定的文件集合,回复集合中每个文件的上一版本.
+	 * 
+	 * @param dictory
+	 *            给定的当前文件组成的文件夹.
+	 * @throws SQLException
+	 * @throws IOException
+	 */
 	public void recoverPreFile(String dictory) throws SQLException, IOException {
 		File fFlie = new File(dictory);
 		if (!fFlie.isDirectory()) {
@@ -142,7 +165,9 @@ public class Extraction2 extends Extraction {
 	 * 根据curFile和数据库中的patch信息,恢复得到preFile.
 	 * 
 	 * @param dictory
+	 *            文件所在的文件夹
 	 * @param string
+	 *            文件名.
 	 * @throws SQLException
 	 * @throws IOException
 	 */
@@ -236,8 +261,6 @@ public class Extraction2 extends Extraction {
 	 * 
 	 * @param MetricFile
 	 *            利用understand得到的各文件的复杂度文件，是一个单个文件。
-	 * @param gap
-	 *            利用字符串gap的值有效区分（commit_id,file_id）对。
 	 * @throws SQLException
 	 * @throws IOException
 	 */
@@ -278,19 +301,27 @@ public class Extraction2 extends Extraction {
 				}
 			}
 		}
-		
-		
+
 		bReader.close();
-		creatDeltMetrics();		
+		creatDeltMetrics();
 		buildContentMap();
-		
+
 		// createDatabase(); // 可选择是否写入数据库
 	}
 
+	/**
+	 * 获取contentMap,用于输出到csv文件.
+	 * 
+	 * @return
+	 */
 	public Map<List<Integer>, StringBuffer> getContentMap() {
 		return contentMap;
 	}
 
+	/**
+	 * 根据grid得到表格形式的contentMap.
+	 * @return
+	 */
 	public Map<List<Integer>, StringBuffer> buildContentMap() {
 		contentMap = new HashMap<>();
 		id_commitId_fileIds = new ArrayList<>();
@@ -301,10 +332,10 @@ public class Extraction2 extends Extraction {
 		id_commitId_fileIds.add(title);
 		StringBuffer titleBuffer = new StringBuffer();
 		for (String attri : attributes) {
-				titleBuffer.append(attri + ",");
+			titleBuffer.append(attri + ",");
 		}
 		contentMap.put(title, titleBuffer);
-		
+
 		int id = 1;
 		for (String file : curFiles) {
 			int commit_id = Integer.parseInt(file.split("_")[0]);
@@ -318,22 +349,21 @@ public class Extraction2 extends Extraction {
 			id_commitId_fileIds.add(cf);
 			StringBuffer temp = new StringBuffer();
 			for (String attri : attributes) {
-					if (grid.get(attri).containsKey(file)) {
-						temp.append(grid.get(attri).get(file) + ",");
-					} else {
-						temp.append(0 + ",");
-					}
+				if (grid.get(attri).containsKey(file)) {
+					temp.append(grid.get(attri).get(file) + ",");
+				} else {
+					temp.append(0 + ",");
+				}
 			}
 			contentMap.put(cf, temp);
 		}
-//		List<Integer> test=new ArrayList<>();
-//		test.add(1);
-//		test.add(10011);
-//		test.add(38051);
-//		System.out.println(contentMap.get(test));
 		return contentMap;
 	}
 
+	/**
+	 * 将复杂度信息写入数据库,将消耗大量时间.
+	 * @throws SQLException
+	 */
 	private void createDatabase() throws SQLException {
 		System.out.println("将复杂度数据写如数据库");
 		sql = "create table extraction2(id int(11) primary key not null auto_increment,commit_id int(11),file_id int(11))";
@@ -418,7 +448,7 @@ public class Extraction2 extends Extraction {
 	 * @return extraction2中的id，commit_id，file_id的列表。
 	 * @throws SQLException
 	 */
-	public List<List<Integer>> GetId_commit_file() throws SQLException {
+	public List<List<Integer>> GeticfFromDatabase() throws SQLException {
 		List<List<Integer>> res = new ArrayList<>();
 		sql = "select id,commit_id,file_id from extraction2";
 		resultSet = stmt.executeQuery(sql);

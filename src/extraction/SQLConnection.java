@@ -3,9 +3,13 @@ package extraction;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
-/*1.通过构造函数选择需要连接的数据库并实现与数据库的连接
+/**
+ * 数据库连接类.
+ * 1.通过构造函数选择需要连接的数据库并实现与数据库的连接
  * 2.通过返回stmt,使调用SQLConnection的类能够执行sql语句
- * */
+ * @author niu
+ *
+ */
 public class SQLConnection {
 	String database;
 	Connection conn = null;
