@@ -55,8 +55,8 @@ public	void Evaluation() throws Exception {
 		res = new ArrayList<>();
 		eval = new Evaluation(ins);
 		eval.crossValidateModel(cla, ins, 10, new Random());
-		System.out.println(0+"---"+ins.attribute(ins.classIndex()).indexOfValue("turee"));
-		System.out.println(1+"---"+ins.attribute(ins.classIndex()).indexOfValue("1"));
+	//	System.out.println(0+"---"+ins.attribute(ins.classIndex()).indexOfValue("turee"));
+	//	System.out.println(1+"---"+ins.attribute(ins.classIndex()).indexOfValue("1"));
 		res.add(eval.recall(0));
 		res.add(eval.recall(1));
 		res.add(eval.precision(0));

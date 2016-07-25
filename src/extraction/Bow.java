@@ -160,13 +160,31 @@ public class Bow {
 			} else {
 				text.deleteCharAt(0);
 				int tail = text.indexOf("\"");
-				while ((tail > 1 && text.charAt(tail - 1) == '\\' && text
+				while (tail >=1) {
+					int numl = 0;
+					for (int j = tail - 1; j >= 0; j--) {
+						if (text.charAt(j) == '\\') {
+							numl++;
+						} else {
+							break;
+						}
+					}
+					if (numl % 2 == 0) {
+						break;
+					} else {
+						tail = tail + 1;
+						tail = tail
+								+ text.substring(tail, text.length()).indexOf(
+										'"');
+					}
+				}
+				/*while ((tail > 1 && text.charAt(tail - 1) == '\\' && text
 						.charAt(tail - 2) != '\\')
 						|| (tail == 1 && text.charAt(0) == '\\')) { // 必定有一个tail与start对应.若引号前有两个双斜杠，则该引号为真正字符串结束。
 					tail = tail + 1;
 					tail = tail
 							+ text.substring(tail, text.length()).indexOf('"');
-				}
+				}*/
 
 				rage = text.substring(0, tail);
 				i++;

@@ -20,24 +20,17 @@ public class Main {
 //		extraction1.Carry1(); // //所有的commit都要处理。
 //		extraction1.Carry2();
 
-
-		Extraction2 extraction2 = new Extraction2("eclipse", 10001,
-				10500);
-		extraction2.extraFromTxt("MyEclipseMetrics.txt");
-		Map<List<Integer>,StringBuffer> sb=extraction2.getContentMap();
-		System.out.println(sb.size());
-		 Extraction3 extraction3 = new Extraction3("eclipse",extraction2.getId_commitId_fileIds(),
-		 "eclipseFiles");
-		 fileOperation = new FileOperation();
-		 Merge merge = new Merge(extraction3.getContent(), extraction2.getContentMap(),extraction2.getId_commitId_fileIds(),"eclipse");
-		 fileOperation.writeContent(merge.merge123(), "MyEclipse.csv");
-		 fileOperation.writeDict("dict.txt", extraction3.getDictionary());
+		//Automatic1("jedit",1001 , 1500);
+//		Extraction2 extraction2 = new Extraction2("MyJedit", 1001,
+//				1500);
+//		extraction2.recoverPreFile("jEditFiles");
+		Automatic2("jEdit", 1001, 1500);
 	}
 
 	static public void Automatic1(String project, int start_commit_id,
 			int end_commit_id) throws Exception {
 		String database = "My"
-				+ project.toLowerCase().substring(0, 1).toLowerCase()
+				+ project.toLowerCase().substring(0, 1).toUpperCase()
 				+ project.toLowerCase().substring(1);
 		Extraction1 extraction1 = new Extraction1(database, -1, -1);
 		extraction1.Carry1();
@@ -46,25 +39,26 @@ public class Main {
 		Extraction2 extraction2 = new Extraction2(database, start_commit_id,
 				end_commit_id);
 		extraction2.Get_icfId();
-		Process process = Runtime.getRuntime().exec(
-				"/bin/sh /home/niu/workspace/changeClassify/src/extraction/GetFile.sh "
-						+ project);
-		System.out.println("the exit value of process is "
-				+ process.exitValue());
+//		Process process = Runtime.getRuntime().exec(
+//				"/bin/sh /home/niu/workspace/changeClassify/src/extraction/GetFile.sh "
+//						+ project);
+//		System.out.println("the exit value of process is "
+//				+ process.exitValue());
 	}
 
 	static public void Automatic2(String project, int start_commit_id,
 			int end_commit_id) throws SQLException, IOException {
 		String database = "My"
-				+ project.toLowerCase().substring(0, 1).toLowerCase()
+				+ project.toLowerCase().substring(0, 1).toUpperCase()
 				+ project.toLowerCase().substring(1);
 		Extraction2 extraction2 = new Extraction2(database, start_commit_id,
 				end_commit_id);
-		extraction2.extraFromTxt("metrics.txt");
-		Extraction3 extraction3 = new Extraction3(database, project + "Files",
-				-1, -1);
+		String metric=database+"Metrics.txt";
+		extraction2.extraFromTxt(metric);
+		
+		Extraction3 extraction3 = new Extraction3(database, extraction2.getId_commitId_fileIds(),project + "Files");
 		fileOperation = new FileOperation();
-		Merge merge = new Merge(extraction3.getContent(), database);
+		Merge merge = new Merge(extraction3.getContent(), extraction2.getContentMap(),extraction2.getId_commitId_fileIds(),database);
 		fileOperation.writeContent(merge.merge123(), database + ".csv");
 		fileOperation.writeDict(database + "Dict.txt",
 				extraction3.getDictionary());
