@@ -24,8 +24,6 @@ import java.util.Map.Entry;
  *
  */
 public class Extraction1 extends Extraction {
-	int startId;
-	int endId;
 	List<Integer> commitIdPart;
 
 	/**
@@ -41,34 +39,6 @@ public class Extraction1 extends Extraction {
 	 */
 	public Extraction1(String database, int s, int e) throws Exception {
 		super(database, s, e);
-		int i = 1;
-		while (s - i > 0) {
-			sql = "select min(id) from extraction1 where commit_id="
-					+ commit_ids.get(s - i);
-			resultSet = stmt.executeQuery(sql);
-			while (resultSet.next()) {
-				startId = resultSet.getInt(1);
-			}
-			if (startId != 0) {
-				break;
-			}
-			i--;
-		}
-		System.out.println("the start commit_id is " + commit_ids.get(e - i));
-		i = 1;
-		while (e - i > 0) {
-			sql = "select max(id) from extraction1 where commit_id="
-					+ commit_ids.get(e - i);
-			resultSet = stmt.executeQuery(sql);
-			while (resultSet.next()) {
-				endId = resultSet.getInt(1);
-			}
-			if (endId != 0) {
-				break;
-			}
-			i++;
-		}
-		System.out.println("起始id号:" + startId + " 结束id号: " + endId);
 		commitIdPart = new ArrayList<>();
 		for (int j = start - 1; j < end; j++) {
 			commitIdPart.add(commit_ids.get(j));
