@@ -24,6 +24,9 @@ import java.util.Map.Entry;
  *
  */
 public class Extraction1 extends Extraction {
+	int startId;
+	int endId;
+	List<Integer> commitIdPart;
 
 	/**
 	 * 提取第一部分change info，s为指定开始的commit_id，e为结束的commit_id
@@ -38,6 +41,38 @@ public class Extraction1 extends Extraction {
 	 */
 	public Extraction1(String database, int s, int e) throws Exception {
 		super(database, s, e);
+		int i = 1;
+		while (s - i > 0) {
+			sql = "select min(id) from extraction1 where commit_id="
+					+ commit_ids.get(s - i);
+			resultSet = stmt.executeQuery(sql);
+			while (resultSet.next()) {
+				startId = resultSet.getInt(1);
+			}
+			if (startId != 0) {
+				break;
+			}
+			i--;
+		}
+		System.out.println("the start commit_id is " + commit_ids.get(e - i));
+		i = 1;
+		while (e - i > 0) {
+			sql = "select max(id) from extraction1 where commit_id="
+					+ commit_ids.get(e - i);
+			resultSet = stmt.executeQuery(sql);
+			while (resultSet.next()) {
+				endId = resultSet.getInt(1);
+			}
+			if (endId != 0) {
+				break;
+			}
+			i++;
+		}
+		System.out.println("起始id号:" + startId + " 结束id号: " + endId);
+		commitIdPart = new ArrayList<>();
+		for (int j = start - 1; j < end; j++) {
+			commitIdPart.add(commit_ids.get(j));
+		}
 	}
 
 	/**
@@ -48,10 +83,10 @@ public class Extraction1 extends Extraction {
 	public void Carry1() throws SQLException {
 		CreateTable();
 		initial();
-		author_name();
-		commit_day();
-		commit_hour();
-		change_log_length();
+		author_name(false);
+		commit_day(false);
+		commit_hour(false);
+		change_log_length(false);
 	}
 
 	/**
@@ -62,7 +97,7 @@ public class Extraction1 extends Extraction {
 	public void Carry2() throws Exception {
 		// sloc();
 		cumulative_change_count();
-		changed_LOC();
+		changed_LOC(false);
 		bug_introducing();
 		cumulative_bug_count();
 	}
@@ -122,11 +157,22 @@ public class Extraction1 extends Extraction {
 	 * 
 	 * @throws SQLException
 	 */
-	public void author_name() throws SQLException {
+	public void author_name(boolean excuteAll) throws SQLException {
+		List<Integer> excuteList;
+		if (excuteAll) {
+			excuteList = commit_ids;
+		} else {
+			excuteList = commitIdPart;
+		}
 		System.out.println("get author_name");
-		sql = "update extraction1,scmlog,people set extraction1.author_name=people.name where extraction1.commit_id="
-				+ "scmlog.id and scmlog.author_id=people.id";
-		stmt.executeUpdate(sql);
+		for (Integer integer : excuteList) {
+			sql = "update extraction1,scmlog,people set extraction1.author_name=people.name where extraction1.commit_id="
+					+ integer
+					+ " and extraction1.commit_id="
+					+ "scmlog.id and scmlog.author_id=people.id";
+			stmt.executeUpdate(sql);
+		}
+
 	}
 
 	/**
@@ -134,10 +180,16 @@ public class Extraction1 extends Extraction {
 	 * 
 	 * @throws SQLException
 	 */
-	public void commit_day() throws SQLException {
+	public void commit_day(boolean excuteAll) throws SQLException {
 		System.out.println("get commit_day");
+		List<Integer> excuteList;
+		if (excuteAll) {
+			excuteList = commit_ids;
+		} else {
+			excuteList = commitIdPart;
+		}
 		Map<Integer, String> mapD = new HashMap<>(); // 加入修改日期
-		for (Integer integer : commit_ids) {
+		for (Integer integer : excuteList) {
 			sql = "select id,commit_date from scmlog where id=" + integer;
 			resultSet = stmt.executeQuery(sql);
 			while (resultSet.next()) {
@@ -170,10 +222,17 @@ public class Extraction1 extends Extraction {
 	 * @throws NumberFormatException
 	 * @throws SQLException
 	 */
-	public void commit_hour() throws NumberFormatException, SQLException {
+	public void commit_hour(boolean excuteAll) throws NumberFormatException,
+			SQLException {
 		System.out.println("get commit_hour");
+		List<Integer> excuteList;
+		if (excuteAll) {
+			excuteList = commit_ids;
+		} else {
+			excuteList = commitIdPart;
+		}
 		Map<Integer, Integer> mapH = new HashMap<>(); // 加入修改时间
-		for (Integer integer : commit_ids) {
+		for (Integer integer : excuteList) {
 			sql = "select id,commit_date from scmlog where id=" + integer;
 			resultSet = stmt.executeQuery(sql);
 			while (resultSet.next()) {
@@ -198,16 +257,23 @@ public class Extraction1 extends Extraction {
 	 * 
 	 * @throws SQLException
 	 */
-	public void change_log_length() throws SQLException {
-		sql = "select id, message from scmlog";
-		resultSet = stmt.executeQuery(sql);
-		Map<Integer, Integer> cllMap = new HashMap<>();
-		while (resultSet.next()) {
-			cllMap.put(resultSet.getInt(1), resultSet.getString(2).length());
+	public void change_log_length(boolean excuteAll) throws SQLException {
+		System.out.println("get change log length");
+		List<Integer> excuteList;
+		if (excuteAll) {
+			excuteList = commit_ids;
+		} else {
+			excuteList = commitIdPart;
 		}
-		for (Integer integer : commit_ids) {
+		for (Integer integer : excuteList) {
+			sql = "select message from scmlog where id=" + integer;
+			resultSet = stmt.executeQuery(sql);
+			String message = null;
+			while (resultSet.next()) {
+				message = resultSet.getString(1);
+			}
 			sql = "update extraction1 set change_log_length ="
-					+ cllMap.get(integer) + " where commit_id=" + integer;
+					+ message.length() + " where commit_id=" + integer;
 			stmt.executeUpdate(sql);
 		}
 	}
@@ -315,17 +381,25 @@ public class Extraction1 extends Extraction {
 	 * 
 	 * @throws SQLException
 	 */
-	public void changed_LOC() throws SQLException {
+	public void changed_LOC(boolean excuteAll) throws SQLException {
 		System.out.println("get changed loc");
-		sql = "select id,commit_id,file_id from extraction1";
+		List<Integer> excuteList;
+		if (excuteAll) {
+			excuteList=commit_ids;
+		}else {
+			excuteList=commitIdPart;
+		}
 		List<List<Integer>> re = new ArrayList<>();
-		resultSet = stmt.executeQuery(sql);
-		while (resultSet.next()) {
-			List<Integer> temp = new ArrayList<>();
-			temp.add(resultSet.getInt(1));
-			temp.add(resultSet.getInt(2));
-			temp.add(resultSet.getInt(3));
-			re.add(temp);
+		for (Integer integer : excuteList) {
+			sql = "select id,file_id from extraction1 where commit_id="+integer;
+			resultSet = stmt.executeQuery(sql);
+			while (resultSet.next()) {
+				List<Integer> temp = new ArrayList<>();
+				temp.add(resultSet.getInt(1));
+				temp.add(integer);
+				temp.add(resultSet.getInt(2));
+				re.add(temp);
+			}
 		}
 		for (List<Integer> list : re) {
 			sql = "select old_start_line,old_end_line,new_start_line,new_end_line from hunks where commit_id="

@@ -31,8 +31,8 @@ public class Extraction {
 	Statement stmt;
 	ResultSet resultSet;
 	List<Integer> commit_ids;
-	private final int start;
-	private final int end;
+	 final int start;
+	 final int end;
 
 	/**
 	 * 连接数据库，初始化变量值，为数据的提取做准备。

@@ -20,11 +20,11 @@ public class Main {
 //		extraction1.Carry1(); // //所有的commit都要处理。
 //		extraction1.Carry2();
 
-		//Automatic1("jedit",1001 , 1500);
+		Automatic1("liferay",10001, 10300);
 //		Extraction2 extraction2 = new Extraction2("MyJedit", 1001,
 //				1500);
 //		extraction2.recoverPreFile("jEditFiles");
-		Automatic2("jEdit", 1001, 1500);
+//		Automatic2("liferay", 1001, 1500);
 	}
 
 	static public void Automatic1(String project, int start_commit_id,
