@@ -154,9 +154,9 @@ public class Bow {
 				}
 				hunkBuffer.append(" " + removeSC2(rage));
 			} else if (startOper.equals("/*")) {
-				rage = text.substring(start + 2, text.indexOf("*/"));
+				rage = text.substring(start + 2, text.substring(2).indexOf("*/")+2);
 				hunkBuffer.append(" " + removeSC2(rage));
-				text.delete(0, text.indexOf("*/") + 2);
+				text.delete(0, text.substring(2).indexOf("*/") + 4);
 			} else {
 				text.deleteCharAt(0);
 				int tail = text.indexOf("\"");

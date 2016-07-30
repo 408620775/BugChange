@@ -105,7 +105,8 @@ public class Extraction1 extends Extraction {
 			List<List<Integer>> list = new ArrayList<>();
 			while (resultSet.next()) {
 				if (resultSet.getString(3).contains(".java")
-						&& (!resultSet.getString(4).contains("test"))) { // 过滤不完全，如果是Test呢？
+						&& (!resultSet.getString(4).toLowerCase()
+								.contains("test"))) { // 过滤不完全，如果是Test呢？
 					List<Integer> temp = new ArrayList<>();
 					temp.add(resultSet.getInt(1));
 					temp.add(resultSet.getInt(2));
@@ -122,7 +123,8 @@ public class Extraction1 extends Extraction {
 	}
 
 	/**
-	 * 获取作者姓名。如果excuteAll为真,则获取extraction1中所有数据的作者.否则只获取commit_id在commitIdPart中的数据的作者.
+	 * 获取作者姓名。如果excuteAll为真,则获取extraction1中所有数据的作者.
+	 * 否则只获取commit_id在commitIdPart中的数据的作者.
 	 * 
 	 * @throws SQLException
 	 */
@@ -145,7 +147,8 @@ public class Extraction1 extends Extraction {
 	}
 
 	/**
-	 * 获取提交的日期，以星期标示。如果excuteAll为真,则获取extraction1中所有数据的日期.否则只获取commit_id在commitIdPart中的数据的日期.
+	 * 获取提交的日期，以星期标示。如果excuteAll为真,则获取extraction1中所有数据的日期.
+	 * 否则只获取commit_id在commitIdPart中的数据的日期.
 	 * 
 	 * @throws SQLException
 	 */
@@ -186,7 +189,8 @@ public class Extraction1 extends Extraction {
 	}
 
 	/**
-	 * 获取提交的时间，以小时标示。如果excuteAll为真,则获取extraction1中所有数据的时间.否则只获取commit_id在commitIdPart中的数据的时间.
+	 * 获取提交的时间，以小时标示。如果excuteAll为真,则获取extraction1中所有数据的时间.
+	 * 否则只获取commit_id在commitIdPart中的数据的时间.
 	 * 
 	 * @throws NumberFormatException
 	 * @throws SQLException
@@ -222,7 +226,8 @@ public class Extraction1 extends Extraction {
 	}
 
 	/**
-	 * 获取changlog的长度。如果excuteAll为真,则获取extraction1中所有数据的changlog长度.否则只获取commit_id在commitIdPart中的数据的changelog长度.
+	 * 获取changlog的长度。如果excuteAll为真,则获取extraction1中所有数据的changlog长度.
+	 * 否则只获取commit_id在commitIdPart中的数据的changelog长度.
 	 * 
 	 * @throws SQLException
 	 */
@@ -393,23 +398,47 @@ public class Extraction1 extends Extraction {
 	}
 
 	/**
-	 * 获取类标号。 对于表extraction1中的每个实例（每一行内容）标识其是否为引入bug。bug_introducing为每个实例的类标签，用于
-	 * 构建分类器。
+	 * 相比于老的bug_introducing函数,此函数运行更快.
 	 * 
 	 * @throws SQLException
 	 */
 	public void bug_introducing() throws SQLException {
 		System.out.println("get bug introducing");
+		sql = "select hunks.id,file_name from hunks,files,"
+				+ "(select commit_id as c,file_id as f from extraction1,scmlog where extraction1.commit_id=scmlog.id and is_bug_fix=1) as tb "
+				+ "where hunks.commit_id=tb.c and hunks.file_id=tb.f and hunks.file_id=files.id;";
+		resultSet = stmt.executeQuery(sql);
+		Map<Integer, String> fId_name = new HashMap<>();
+		while (resultSet.next()) {
+			fId_name.put(resultSet.getInt(1), resultSet.getString(2));
+		}
+		for (Integer integer : fId_name.keySet()) {
+			sql = "update extraction1,files set bug_introducing=1 where extraction1.file_id=files.id and file_name='"
+					+ fId_name.get(integer)
+					+ "' and commit_id IN (select bug_commit_id "
+					+ "from hunk_blames where hunk_id=" + integer + ")";
+			stmt.executeUpdate(sql);
+		}
+	}
+
+	/**
+	 * 获取类标号。 对于表extraction1中的每个实例（每一行内容）标识其是否为引入bug。bug_introducing为每个实例的类标签，用于
+	 * 构建分类器。
+	 * 
+	 * @throws SQLException
+	 */
+	public void oldBug_introducing() throws SQLException {
 		List<Integer> ids = new ArrayList<>();
-		for (Integer integer : commit_ids) {
-			sql = "select id from scmlog where is_bug_fix=1 and id=" + integer; // 写的有点废话，但是可以保证ids中的序号为时间序。
-			resultSet = stmt.executeQuery(sql);
-			while (resultSet.next()) {
+		sql = "select id from scmlog where is_bug_fix=1";
+		resultSet = stmt.executeQuery(sql);
+		while (resultSet.next()) {
+			if (commit_ids.contains(resultSet.getInt(1))) {
 				ids.add(resultSet.getInt(1));
 			}
 		}
+
 		for (Integer integer : ids) {
-			sql = "select  id,file_id from hunks where commit_id=" + integer; 
+			sql = "select  id,file_id from hunks where commit_id=" + integer;
 			resultSet = stmt.executeQuery(sql);
 			List<List<Integer>> hunkFileId = new ArrayList<>(); // 有些只是行错位了也会被标记为bug_introducing。但是作为hunks的一部分好像也成。
 			while (resultSet.next()) {

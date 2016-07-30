@@ -3,6 +3,7 @@ package classify;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -39,18 +40,19 @@ public class ClassifyCalculate {
 	public ClassifyCalculate(Instances instances, String claName) {
 		this.ins = instances;
 		this.className=claName;
-		res = new TreeMap<List<String>, List<Double>>(
-				new Comparator<List<String>>() {
-
-					@Override
-					public int compare(List<String> o1, List<String> o2) {
-						if (!o1.get(0).equals(o2.get(0))) {
-							return o1.get(0).compareTo(o2.get(0));
-						} else {
-							return o1.get(1).compareTo(o2.get(1));
-						}
-					}
-				});
+//		res = new TreeMap<List<String>, List<Double>>(
+//				new Comparator<List<String>>() {
+//
+//					@Override
+//					public int compare(List<String> o1, List<String> o2) {
+//						if (!o1.get(0).equals(o2.get(0))) {
+//							return o1.get(0).compareTo(o2.get(0));
+//						} else {
+//							return o1.get(1).compareTo(o2.get(1));
+//						}
+//					}
+//				});
+		res=new LinkedHashMap<>();
 	}
 
 	/**

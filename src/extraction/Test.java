@@ -1,8 +1,10 @@
 package extraction;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -10,9 +12,13 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import sun.net.www.http.KeepAliveCache;
+import db.k;
 
 public class Test {
 	String sql;
@@ -322,11 +328,12 @@ public class Test {
 		}
 	}
 
-	public void sortCommitByBranch(Map<String, Integer> map,String revFile) throws IOException {
-		List<String> revList=getRevList(revFile);
-		List<Integer> sortC=new ArrayList<>();
+	public void sortCommitByBranch(Map<String, Integer> map, String revFile)
+			throws IOException {
+		List<String> revList = getRevList(revFile);
+		List<Integer> sortC = new ArrayList<>();
 		for (String string : revList) {
-		      if (map.containsKey(string)) {
+			if (map.containsKey(string)) {
 				sortC.add(map.get(string));
 			}
 		}
@@ -334,18 +341,22 @@ public class Test {
 			System.out.println(integer);
 		}
 	}
-	public Map<String, Integer> getRev_idMap(String rev_id) throws NumberFormatException, IOException {
-		BufferedReader bReader=new BufferedReader(new FileReader(new File(rev_id)));
-		Map<String, Integer> map=new HashMap<>();
-		String line=null;
-		while ((line=bReader.readLine())!=null) {
-			String revString=line.split("\\s{1,}")[0];
-			int commit_id=Integer.parseInt(line.split("\\s{1,}")[1]);
+
+	public Map<String, Integer> getRev_idMap(String rev_id)
+			throws NumberFormatException, IOException {
+		BufferedReader bReader = new BufferedReader(new FileReader(new File(
+				rev_id)));
+		Map<String, Integer> map = new HashMap<>();
+		String line = null;
+		while ((line = bReader.readLine()) != null) {
+			String revString = line.split("\\s{1,}")[0];
+			int commit_id = Integer.parseInt(line.split("\\s{1,}")[1]);
 			map.put(revString, commit_id);
 		}
 		bReader.close();
 		return map;
 	}
+
 	public List<String> getRevList(String file) throws IOException {
 		BufferedReader bReader = new BufferedReader(new FileReader(new File(
 				file)));
@@ -363,30 +374,81 @@ public class Test {
 		bReader.close();
 		return revList;
 	}
-	
-	public void findLastChange(int commit_id,int file_id,Map<String, Integer> map,List<String> revList) throws SQLException {
-		sql="select rev from scmlog where id="+commit_id;
-		resultSet=stmt.executeQuery(sql);
-		String curString=null;
+
+	public void findLastChange(int commit_id, int file_id,
+			Map<String, Integer> map, List<String> revList) throws SQLException {
+		sql = "select rev from scmlog where id=" + commit_id;
+		resultSet = stmt.executeQuery(sql);
+		String curString = null;
 		while (resultSet.next()) {
-			curString=resultSet.getString(1);
+			curString = resultSet.getString(1);
 		}
-		int mayLast=revList.indexOf(curString)+1;
-		while (mayLast<revList.size()) {
-			sql="select id from scmlog where rev=\""+revList.get(mayLast)+"\"";
-			resultSet=stmt.executeQuery(sql);
-			int nextId=0;
+		int mayLast = revList.indexOf(curString) + 1;
+		while (mayLast < revList.size()) {
+			sql = "select id from scmlog where rev=\"" + revList.get(mayLast)
+					+ "\"";
+			resultSet = stmt.executeQuery(sql);
+			int nextId = 0;
 			if (resultSet.next()) {
-				nextId=resultSet.getInt(1);
-				sql="select * from actions where commit_id="+nextId+" and file_id="+file_id;
-				resultSet=stmt.executeQuery(sql);
+				nextId = resultSet.getInt(1);
+				sql = "select * from actions where commit_id=" + nextId
+						+ " and file_id=" + file_id;
+				resultSet = stmt.executeQuery(sql);
 				if (resultSet.next()) {
-					System.out.println("last change of "+commit_id+"_"+file_id+".java may be is "+nextId+"_"+file_id+".java");
+					System.out.println("last change of " + commit_id + "_"
+							+ file_id + ".java may be is " + nextId + "_"
+							+ file_id + ".java");
 					return;
 				}
 			}
-				mayLast++;
+			mayLast++;
 		}
-		System.out.println("can found the last change ,may be the file is the first edit");
+		System.out
+				.println("can found the last change ,may be the file is the first edit");
+	}
+
+	public void getCPC(String saveFile) throws SQLException, IOException {
+		Map<Integer, Integer> totalCount = new LinkedHashMap<Integer, Integer>();
+		Map<Integer, Integer> bugCount = new LinkedHashMap<Integer, Integer>();
+		Map<Integer, Double> buggy = new LinkedHashMap<Integer, Double>();
+		
+		BufferedWriter bwWriter = new BufferedWriter(new FileWriter(new File(
+				saveFile)));
+
+		sql = "select commit_id,count(*) from extraction1,scmlog where extraction1.commit_id=scmlog.id group by commit_id order by commit_date";
+		resultSet = stmt.executeQuery(sql);
+		while (resultSet.next()) {
+			totalCount.put(resultSet.getInt(1), resultSet.getInt(2));
+		}
+		// sql = "select cnt "
+		// + "from (scmlog left join"
+		// +
+		// " (select commit_id,count(*) as cnt from extraction1 where bug_introducing=1 group by commit_id) as tb"
+		// + " on scmlog.id=tb.commit_id) "
+		// +
+		// " where scmlog.id in (select commit_id from extraction1)  order by commit_date";
+		sql = "select commit_id,count(*) from extraction1,scmlog where extraction1.commit_id=scmlog.id and bug_introducing=1 group by commit_id order by commit_date";
+		resultSet = stmt.executeQuery(sql);
+		while (resultSet.next()) {
+			bugCount.put(resultSet.getInt(1), resultSet.getInt(2));
+		}
+		System.out.println(totalCount.size());
+		System.out.println(bugCount.size());
+		for (Integer key: totalCount.keySet()) {
+			if (bugCount.containsKey(key)) {
+				buggy.put(key, (double)bugCount.get(key)/totalCount.get(key));
+			}else {
+				buggy.put(key, 0.0);
+			}
+		}
+		for (Integer integer: totalCount.keySet()) {
+			if (bugCount.containsKey(integer)) {
+				bwWriter.append(totalCount.get(integer)+","+bugCount.get(integer)+","+buggy.get(integer)+"\n");
+			}else {
+				bwWriter.append(totalCount.get(integer)+","+0+","+"0"+"\n");
+			}
+		}
+		bwWriter.flush();
+		bwWriter.close();
 	}
 }

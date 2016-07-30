@@ -223,7 +223,7 @@ public class Extraction3 extends Extraction {
 	 * @throws SQLException
 	 * @throws IOException
 	 */
-	public void sourceInfo(String projectHome) throws SQLException, IOException {
+	public  void sourceInfo(String projectHome) throws SQLException, IOException {
 		for (List<Integer> list : id_commitId_fileIds) {
 			if (list.get(1) != -1) {
 				System.out.println("extract from " + list.get(1) + "_"
@@ -234,30 +234,31 @@ public class Extraction3 extends Extraction {
 				bow = new Bow();
 				// sql = "select patch from patches where id=2354";
 				resultSet = stmt.executeQuery(sql);
+				String patchString="";
 				if (!resultSet.next()) {
 					System.out.println("patches in commit_id=" + list.get(1)
 							+ " and file_id" + list.get(2) + " is empty!");
-					continue;
+				}else {
+					patchString= resultSet.getString(1);
 				}
-				String patchString = resultSet.getString(1);
-				if (patchString.indexOf("@") == -1) {
-					System.out.println("patch not contain @");
-					continue;
-				}
-				patchString = patchString.substring(patchString.indexOf("@"),
-						patchString.length()).replaceAll("@@.*@@", "");
-
+				
 				StringBuffer sBuffer = new StringBuffer();
-				for (String s : patchString.split("\\n{1,}")) {
-					if (s.startsWith("+") || s.startsWith("-")) { // if exist
-																	// bug?
-																	// for
-																	// example
-																	// +++
-						s = s.substring(1, s.length());
-						sBuffer.append(s + "\n");
+				if (!patchString.equals("")) {
+					patchString = patchString.substring(patchString.indexOf("@"),
+							patchString.length()).replaceAll("@@.*@@", "");
+					for (String s : patchString.split("\\n{1,}")) {
+						if (s.startsWith("+") || s.startsWith("-")) { 
+							s = s.substring(1, s.length());    //写的太烂了
+							s=s.replace("\\*", " ");
+							s=s.replace("*\\", " ");
+							s=s.replace("\\\\", " ");
+							s=s.replace("\"", " ");
+							sBuffer.append(s + "\n");
+						}
 					}
 				}
+				
+				
 
 				File sourceFile = new File(projectHome + "/" + list.get(1)
 						+ "_" + list.get(2) + ".java");

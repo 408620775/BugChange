@@ -125,20 +125,29 @@ public class Extraction2 extends Extraction {
 			bWriter.close();
 			return;
 		}
-		sql = "select extraction1.commit_id,extraction1.file_id,rev,current_file_path from extraction1,scmlog,actions where extraction1.id>="
+		sql = "select extraction1.commit_id,extraction1.file_id,rev,current_file_path,bug_introducing from extraction1,scmlog,actions where extraction1.id>="
 				+ startId
 				+ " and extraction1.id<="
 				+ endId
 				+ " and extraction1.commit_id=scmlog.id and extraction1.commit_id=actions.commit_id and extraction1.file_id=actions.file_id and type!='D'";
 		resultSet = stmt.executeQuery(sql);
+		int total=0;
+		int numBug=0;
 		while (resultSet.next()) {
 			bWriter.append(resultSet.getInt(1) + "   " + resultSet.getInt(2)
 					+ "   " + resultSet.getString(3) + "   "
 					+ resultSet.getString(4));
 			bWriter.append("\n");
+			if (resultSet.getInt(5)==1) {
+				numBug++;
+			}
+			total++;
 		}
 		bWriter.flush();
 		bWriter.close();
+		System.out.println("the num of files is "+total);
+		System.out.println("the num of bug is "+numBug);
+		System.out.println("the ratio of bug is "+(double)numBug/total);
 	}
 
 	/**
