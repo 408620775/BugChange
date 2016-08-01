@@ -45,8 +45,8 @@ extraction2.Get_icfId();
 				+ project.toLowerCase().substring(0, 1).toUpperCase()
 				+ project.toLowerCase().substring(1);
 		Extraction1 extraction1 = new Extraction1(database, start_commit_id, end_commit_id);
-		extraction1.Carry1();
-		extraction1.Carry2();
+		extraction1.mustTotal();
+		extraction1.canPart();
 
 		Extraction2 extraction2 = new Extraction2(database, start_commit_id,
 				end_commit_id);
@@ -59,10 +59,13 @@ extraction2.Get_icfId();
 	}
 
 	static public void Automatic2(String project, int start_commit_id,
-			int end_commit_id) throws SQLException, IOException {
+			int end_commit_id) throws Exception {
 		String database = "My"
 				+ project.toLowerCase().substring(0, 1).toUpperCase()
 				+ project.toLowerCase().substring(1);
+		Extraction1 extraction1=new Extraction1(database, start_commit_id, end_commit_id);
+		extraction1.canPart();
+		
 		Extraction2 extraction2 = new Extraction2(database, start_commit_id,
 				end_commit_id);
 		String metric = database + "Metrics.txt";

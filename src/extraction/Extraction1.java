@@ -45,30 +45,56 @@ public class Extraction1 extends Extraction {
 	}
 
 	/**
-	 * 批量化执行若干函数。 此处四个获取信息的函数可以优化成一个，以减少时间开销，但是会增加代码长度。
+	 * extraction1表中必须通过执行所有的实例才能获取的信息.
 	 * 
-	 * @throws SQLException
+	 * @throws Exception
 	 */
-	public void Carry1() throws SQLException {
+	public void mustTotal() throws Exception {
 		CreateTable();
 		initial();
+		cumulative_change_count();
+		bug_introducing();
+		cumulative_bug_count();
+	}
+
+	/**
+	 * extraction1表中可以选择一部分一部分执行的信息.
+	 * 
+	 * @throws Exception
+	 */
+	public void canPart() throws Exception {
+		String name1 = null;
+		for (int i = 0; i < commitIdPart.size(); i++) {
+			sql = "select author_name from extraction1 where id=(select min(id) from extraction1 where commit_id="
+					+ commitIdPart.get(i) + ")";
+			resultSet = stmt.executeQuery(sql);
+			if (!resultSet.next()) {
+				continue;
+			} else {
+				name1 = resultSet.getString(1);
+				break;
+			}
+		}
+		String name2 = null;
+		for (int i = commitIdPart.size() - 1; i >= 0; i--) {
+			sql = "select author_name from extraction1 where id=(select max(id) from extraction1 where commit_id="
+					+ commitIdPart.get(i) + ")";
+			resultSet = stmt.executeQuery(sql);
+			if (!resultSet.next()) {
+				continue;
+			} else {
+				name2 = resultSet.getString(1);
+				break;
+			}
+		}
+		if (name1 != null && name2 != null) {
+			return;
+		}
 		author_name(false);
 		commit_day(false);
 		commit_hour(false);
 		change_log_length(false);
-	}
-
-	/**
-	 * 批量化执行若干函数。 防止Carry1责任过大，故将所有函数分为两部分执行。
-	 * 
-	 * @throws Exception
-	 */
-	public void Carry2() throws Exception {
-		// sloc();
-		cumulative_change_count();
 		changed_LOC(false);
-		bug_introducing();
-		cumulative_bug_count();
 	}
 
 	/**
