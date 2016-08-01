@@ -135,4 +135,40 @@ public class PreProcess {
 		// System.out.println(data2.numAttributes());
 		return data;
 	}
+	
+	public Instances NumLn(Instances data,String className) {
+		System.out.println("数值型属性自然对数化");
+		data.setClass(data.attribute(className));
+		int numA=data.numAttributes();
+		int numI=data.numInstances();
+		for (int i = 0; i < numA; i++) {
+			if (data.attribute(i).isNumeric()) {
+				double min=Double.MAX_VALUE;
+				if (data.attribute(i).name().contains("s")) {
+					min=0.0001;
+				}else {
+					for (int j = 0; j <numI; j++) {
+						if (data.instance(j).value(i)<min) {
+							min=data.instance(j).value(i);
+						}
+					}
+					if (min==0) {
+						min=0.0001;
+					}
+				}
+				if (min>0) {
+					for (int j = 0; j <numI; j++) {
+						data.instance(j).setValue(i, Math.log(data.instance(j).value(i)+min));
+					}
+				}else {
+					double delta=Math.abs(min);
+					for (int j = 0; j < numI; j++) {
+						data.instance(j).setValue(i, Math.log(data.instance(j).value(i)+delta+0.0001));
+					}
+				}
+			}
+			
+		}
+		return data;
+	}
 }

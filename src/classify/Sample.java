@@ -20,10 +20,12 @@ import weka.filters.supervised.instance.SMOTE;
 public class Sample {
 
 	private static String className = "bug_introducing";
-/**
- * 构造函数,设置采样时的类标签,默认类标签为bug_introducing.
- * @param claName
- */
+
+	/**
+	 * 构造函数,设置采样时的类标签,默认类标签为bug_introducing.
+	 * 
+	 * @param claName
+	 */
 	public Sample(String claName) {
 		className = claName;
 	}
@@ -35,7 +37,7 @@ public class Sample {
 	 * @return
 	 * @throws IOException
 	 */
-	public  Instances OverSample(Instances init) throws IOException {
+	public Instances OverSample(Instances init) throws IOException {
 		FastVector attInfo = new FastVector();
 		for (int i = 0; i < init.numAttributes(); i++) {
 			weka.core.Attribute temp = init.attribute(i);
@@ -104,11 +106,13 @@ public class Sample {
 
 	/**
 	 * 欠采样方法.
-	 * @param init 用于采样的实例集.
+	 * 
+	 * @param init
+	 *            用于采样的实例集.
 	 * @return
 	 * @throws IOException
 	 */
-	public  Instances UnderSample(Instances init) throws IOException {
+	public Instances UnderSample(Instances init) throws IOException {
 		int numAttr = init.numAttributes();
 		int numInstance = init.numInstances();
 
@@ -119,18 +123,15 @@ public class Sample {
 		}
 
 		Instances NoInstances = new Instances("No", attInfo, numInstance);
-
 		NoInstances.setClass(NoInstances.attribute(className));
-
 		Instances YesInstances = new Instances("yes", attInfo, numInstance);
 		YesInstances.setClass(YesInstances.attribute(className));
-
 		init.setClass(init.attribute(className));
 		int classIndex = init.classIndex();
-		
+
 		int numYes = 0;
 		int numNo = 0;
-		
+
 		for (int i = 0; i < numInstance; i++) {
 			Instance temp = init.instance(i);
 			double Value = temp.value(classIndex);
@@ -155,10 +156,10 @@ public class Sample {
 	}
 
 	public Instances smote(Instances ins) throws Exception {
-		SMOTE smote=new SMOTE();
+		SMOTE smote = new SMOTE();
 		ins.setClass(ins.attribute(className));
 		smote.setInputFormat(ins);
-		Instances smoteInstances=Filter.useFilter(ins, smote);
+		Instances smoteInstances = Filter.useFilter(ins, smote);
 		return smoteInstances;
 	}
 }
