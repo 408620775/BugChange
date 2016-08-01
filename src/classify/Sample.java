@@ -2,9 +2,14 @@ package classify;
 
 import java.io.IOException;
 import java.util.Random;
+
+import com.sun.xml.internal.ws.encoding.soap.SOAP12Constants;
+
 import weka.core.FastVector;
 import weka.core.Instance;
 import weka.core.Instances;
+import weka.filters.Filter;
+import weka.filters.supervised.instance.SMOTE;
 
 /**
  * 采样类，用于对不均衡数据进行处理。方式主要有过采样和欠采样两种。
@@ -30,7 +35,7 @@ public class Sample {
 	 * @return
 	 * @throws IOException
 	 */
-	public static Instances OverSample(Instances init) throws IOException {
+	public  Instances OverSample(Instances init) throws IOException {
 		FastVector attInfo = new FastVector();
 		for (int i = 0; i < init.numAttributes(); i++) {
 			weka.core.Attribute temp = init.attribute(i);
@@ -103,7 +108,7 @@ public class Sample {
 	 * @return
 	 * @throws IOException
 	 */
-	public static Instances UnderSample(Instances init) throws IOException {
+	public  Instances UnderSample(Instances init) throws IOException {
 		int numAttr = init.numAttributes();
 		int numInstance = init.numInstances();
 
@@ -149,4 +154,11 @@ public class Sample {
 		return res;
 	}
 
+	public Instances smote(Instances ins) throws Exception {
+		SMOTE smote=new SMOTE();
+		ins.setClass(ins.attribute(className));
+		smote.setInputFormat(ins);
+		Instances smoteInstances=Filter.useFilter(ins, smote);
+		return smoteInstances;
+	}
 }

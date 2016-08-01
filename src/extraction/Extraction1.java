@@ -100,7 +100,7 @@ public class Extraction1 extends Extraction {
 		System.out.println("initial the table");
 		for (Integer integer : commit_ids) {
 			sql = "select commit_id,file_id,file_name,current_file_path from actions,files where commit_id="
-					+ integer + " and file_id=files.id"; // 只选取java文件,同时排除测试文件。
+					+ integer + " and file_id=files.id and type!='D'"; // 只选取java文件,同时排除测试文件。
 			resultSet = stmt.executeQuery(sql);
 			List<List<Integer>> list = new ArrayList<>();
 			while (resultSet.next()) {

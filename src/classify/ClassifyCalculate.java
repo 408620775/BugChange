@@ -25,11 +25,16 @@ public class ClassifyCalculate {
 	String[] classifys = { "weka.classifiers.trees.J48",
 			"weka.classifiers.bayes.NaiveBayes",
 			"weka.classifiers.functions.SMO" };
-	String[] methods = { "standard", "undersample", "oversample", "bagging",
-			"underBagging", "overBagging" };
+	String[] methods = { "standard", "undersample", "oversample", "smote",
+			"bagging", "underBagging", "overBagging", "smoteBagging" };
 	Instances ins;
 	Map<List<String>, List<Double>> res;
-	String className="bug_introducing";
+
+	public Map<List<String>, List<Double>> getRes() {
+		return res;
+	}
+
+	String className = "bug_introducing";
 
 	/**
 	 * 构造函数，初始化要使用的用例集。
@@ -39,63 +44,54 @@ public class ClassifyCalculate {
 	 */
 	public ClassifyCalculate(Instances instances, String claName) {
 		this.ins = instances;
-		this.className=claName;
-//		res = new TreeMap<List<String>, List<Double>>(
-//				new Comparator<List<String>>() {
-//
-//					@Override
-//					public int compare(List<String> o1, List<String> o2) {
-//						if (!o1.get(0).equals(o2.get(0))) {
-//							return o1.get(0).compareTo(o2.get(0));
-//						} else {
-//							return o1.get(1).compareTo(o2.get(1));
-//						}
-//					}
-//				});
-		res=new LinkedHashMap<>();
+		this.className = claName;
+		res = new LinkedHashMap<>();
 	}
 
 	/**
 	 * 针对不同的分类器不同的采样方法,获取不同情况下的分类评估结果.
+	 * 
 	 * @throws Exception
 	 */
 	public void totalCal() throws Exception {
 		List<Instances> subInstances = new ArrayList<>();
 		subInstances.add(ins);
-		subInstances.add(Sample.UnderSample(ins));
-		subInstances.add(Sample.OverSample(ins));
-
+		Sample sample = new Sample(className);
+		subInstances.add(sample.UnderSample(ins));
+		subInstances.add(sample.OverSample(ins));
+		subInstances.add(sample.smote(ins));
+		
 		for (int i = 0; i < classifys.length; i++) {
 			Classify classify = null;
-			for (int j = 0; j < 3; j++) {
+			for (int j = 0; j < 4; j++) {
 				List<String> keyList = new ArrayList<>();
 				keyList.add(classifys[i]);
-		        keyList.add(methods[j]);	
+				keyList.add(methods[j]);
 				classify = new SimpleClassify((Classifier) Class.forName(
-						classifys[i]).newInstance(), subInstances.get(j),className);
+						classifys[i]).newInstance(), subInstances.get(j),
+						className);
 				classify.Evaluation();
 				res.put(keyList, classify.getRes());
 			}
 
-			for (int j = 3; j < 6; j++) {
+			for (int j = 4; j < 8; j++) {
 				List<String> keyList = new ArrayList<>();
 				keyList.add(classifys[i]);
 				keyList.add(methods[j]);
 				classify = new BaggingClassify((Classifier) Class.forName(
-						classifys[i]).newInstance(), ins,j-3,className);
+						classifys[i]).newInstance(), ins, j - 4, className);
 				classify.Evaluation();
 				res.put(keyList, classify.getRes());
 			}
 		}
 
-
-		DecimalFormat df=new DecimalFormat("0.00");
+		DecimalFormat df = new DecimalFormat("0.00");
 		for (List<String> m : res.keySet()) {
 			for (String string : m) {
-				System.out.print(string+"  ");
+				System.out.print(string + "  ");
 			}
 			for (Double value : res.get(m)) {
-				System.out.print(df.format(value)+"  ");
+				System.out.print(df.format(value) + "  ");
 			}
 			System.out.println();
 		}

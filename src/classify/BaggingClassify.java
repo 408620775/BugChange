@@ -59,10 +59,13 @@ public class BaggingClassify extends Classify {
 		Instances temp = null;
 		List<Double[]> resDoubles = new ArrayList<>();
 		while (loop < 10) {
+			Sample sample=new Sample(className);
 			if (judge == 1) {
-				temp = Sample.UnderSample(ins);
-			} else {
-				temp = Sample.OverSample(ins);
+				temp = sample.UnderSample(ins);
+			} else if (judge==2) {
+				temp = sample.OverSample(ins);
+			}else {
+				temp=sample.smote(ins);
 			}
 			Double[] r = new Double[8];
 			eval = new Evaluation(ins);

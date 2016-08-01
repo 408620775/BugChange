@@ -454,6 +454,6 @@ public class Extraction3 extends Extraction {
 	 * @return
 	 */
 	public Map<String, String> getDictionary() {
-		return dictionary;
+		return dictionary2;
 	}
 }

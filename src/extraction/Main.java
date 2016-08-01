@@ -20,11 +20,11 @@ public class Main {
 //extraction1.Carry2();
 
 		//Automatic1("synapse",1001, 1500);
-	//	Extraction2 extraction2 = new Extraction2("MySynapse", 1001,
-	//	1500);
-		// extraction2.Get_icfId();
-	//	extraction2.recoverPreFile("synapseFiles");
-		Automatic2("synapse", 1001, 1500);
+Extraction2 extraction2 = new Extraction2("MySynapse", 1001,
+	1300);
+extraction2.Get_icfId();
+		//extraction2.recoverPreFile("synapseFiles");
+		//Automatic2("synapse", 1001, 1300);
 		
 
 //		BufferedReader bReader=new BufferedReader(new FileReader(new File("synapseFiles/328_1167.java")));
