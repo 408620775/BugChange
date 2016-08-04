@@ -162,4 +162,22 @@ public class Sample {
 		Instances smoteInstances = Filter.useFilter(ins, smote);
 		return smoteInstances;
 	}
+
+	public Instances RandomSample(Instances init, double ratio) {
+		int numAttr = init.numAttributes();
+		int numInstance = init.numInstances();
+		int totalNum = (int) (numInstance * ratio);
+		
+		FastVector attInfo = new FastVector();
+		for (int i = 0; i < numAttr; i++) {
+			weka.core.Attribute temp = init.attribute(i);
+			attInfo.addElement(temp);
+		}
+		Instances res = new Instances("Res", attInfo, totalNum);
+		Random rn = new Random();
+		for (int i = 0; i <totalNum; i++) {
+				res.add(init.instance(rn.nextInt(numInstance)));
+		}
+		return res;
+	}
 }
