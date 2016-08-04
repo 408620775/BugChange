@@ -24,9 +24,10 @@ import weka.core.Instances;
 public class ClassifyCalculate {
 	String[] classifys = { "weka.classifiers.trees.J48",
 			"weka.classifiers.bayes.NaiveBayes",
-			"weka.classifiers.functions.SMO" };
-	String[] methods = { "standard", "undersample", "oversample", "smote",
-			"bagging", "underBagging", "overBagging", "smoteBagging" };
+			"weka.classifiers.functions.SMO"};
+			//"weka.classifiers.meta.AdaBoostM1" };
+	String[] methods = { "standard", "undersample", "oversample", 
+			"bagging", "underBagging", "overBagging"};
 	Instances ins;
 	Map<List<String>, List<Double>> res;
 
@@ -59,11 +60,11 @@ public class ClassifyCalculate {
 		Sample sample = new Sample(className);
 		subInstances.add(sample.UnderSample(ins));
 		subInstances.add(sample.OverSample(ins));
-		subInstances.add(sample.smote(ins));
+		//subInstances.add(sample.smote(ins));
+		Classify classify = null;
 		
-		for (int i = 0; i < classifys.length; i++) {
-			Classify classify = null;
-			for (int j = 0; j < 4; j++) {
+		for (int i = 0; i < 3; i++) {
+			for (int j = 0; j < 3; j++) {
 				List<String> keyList = new ArrayList<>();
 				keyList.add(classifys[i]);
 				keyList.add(methods[j]);
@@ -74,17 +75,28 @@ public class ClassifyCalculate {
 				res.put(keyList, classify.getRes());
 			}
 
-			for (int j = 4; j < 8; j++) {
+			for (int j = 3; j < 6; j++) {
 				List<String> keyList = new ArrayList<>();
 				keyList.add(classifys[i]);
 				keyList.add(methods[j]);
-				classify = new BaggingClassify((Classifier) Class.forName(
-						classifys[i]).newInstance(), ins, j - 4, className);
+//				classify = new BaggingClassify((Classifier) Class.forName(
+//						classifys[i]).newInstance(), ins, j - 3, className);
+				classify=new BaggingClassify2((Classifier) Class.forName(
+					classifys[i]).newInstance(), subInstances.get(j-3), className);
 				classify.Evaluation();
 				res.put(keyList, classify.getRes());
 			}
 		}
 
+/*		for (int i = 0; i < 4; i++) {
+			List<String> keyList = new ArrayList<>();
+			keyList.add(classifys[3]);
+			keyList.add(methods[i]);
+			classify=new BoostingClassify(subInstances.get(i), className);
+			classify.Evaluation();
+			res.put(keyList, classify.getRes());
+		}*/
+		
 		DecimalFormat df = new DecimalFormat("0.00");
 		for (List<String> m : res.keySet()) {
 			for (String string : m) {

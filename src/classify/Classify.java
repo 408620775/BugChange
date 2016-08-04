@@ -74,6 +74,10 @@ public abstract class Classify {
 		this.className=claName;
 	}
 
+	public Classify(Instances instances,String claName) {
+		this.ins=instances;
+		this.className=claName;
+	}
 	abstract void Evaluation() throws Exception;
 
 }

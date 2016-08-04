@@ -1,8 +1,10 @@
 package extraction;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
@@ -13,30 +15,21 @@ public class Main {
 	static FileOperation fileOperation;
 
 	public static void main(String[] args) throws Exception {
-//		Test test = new Test("voldemort");
-//		test.getCPC("voldeFault.csv");
-//Extraction1 extraction1=new Extraction1("MyLucene", 1001, 1500);
-//extraction1.Carry1(); // //所有的commit都要处理。
-//extraction1.Carry2();
-
-		//Automatic1("synapse",1001, 1500);
-Extraction2 extraction2 = new Extraction2("MySynapse", 1001,
-	1300);
-extraction2.Get_icfId();
-		//extraction2.recoverPreFile("synapseFiles");
-		//Automatic2("synapse", 1001, 1300);
-		
-
-//		BufferedReader bReader=new BufferedReader(new FileReader(new File("synapseFiles/328_1167.java")));
-//		StringBuffer linebuffer=new StringBuffer();
-//		String line=null;
-//		while ((line=bReader.readLine())!=null) {
-//			linebuffer.append(line+"\n");
-//		}
-//		bReader.close();
-//		Bow bow=new Bow();
-//		Map<String, Integer> contentMap=bow.bowP(linebuffer);
-//		System.out.println(contentMap);
+		File dict=new File("OptResult");
+		String[] cFiles=dict.list();
+		for (String string : cFiles) {
+			String line=null;
+			BufferedReader bReader=new BufferedReader(new FileReader(new File("OptResult/"+string)));
+			BufferedWriter bWriter=new BufferedWriter(new FileWriter(new File("OptResult/"+string)));
+			while ((line=bReader.readLine())!=null&&line.startsWith("weka")) {
+			line=line.substring(line.indexOf("   "));
+			line=line.substring(line.indexOf("   "));
+			bWriter.append(line+"\n");
+			}
+			bReader.close();
+			bWriter.flush();
+			bWriter.close();
+		}
 	}
 
 	static public void Automatic1(String project, int start_commit_id,
