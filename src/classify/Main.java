@@ -16,25 +16,36 @@ import weka.core.converters.ArffLoader;
 public class Main {
 
 	public static void main(String[] args) throws Exception {
-		File aFile = new File("V2Arff/MyTomcat.arff");
-		ArffLoader arffLoader = new ArffLoader();
-		arffLoader.setFile(aFile);
-		Instances instances=arffLoader.getDataSet();
-		Sample sample=new Sample("bug_introducing");
-		Instances overInstances=sample.OverSample(instances);
-		Classifier classifier=new J48();
-		BaggingClassify2 baggingClassify2=new BaggingClassify2(classifier, overInstances, "bug_introducing");
-		baggingClassify2.Evaluation();
-		for (double value: baggingClassify2.getRes()) {
-			System.out.print(value+"  ");
+		File aFile = new File("V2Arff");
+		String[] arffFiles = aFile.list();
+		DecimalFormat df = new DecimalFormat("0.00");
+
+		for (String string : arffFiles) {
+			ArffLoader arffLoader = new ArffLoader();
+			arffLoader.setFile(new File(aFile.getName()+"/"+string));
+			Instances instances=arffLoader.getDataSet();
+			Sample sample=new Sample("bug_introducing");
+			Instances overInstances=sample.OverSample(instances);
+			System.out.println(string);
+			Classifier classifier=new J48();
+			BaggingClassify2 baggingClassify2=new BaggingClassify2(classifier, overInstances, "bug_introducing");
+			baggingClassify2.Evaluation();
+			for (double value: baggingClassify2.getRes()) {
+				System.out.print(value+"  ");
+			}
+			System.out.println();
+		//	SimpleClassify simpleClassify=new SimpleClassify(classifier, overInstances,"bug_introducing");
+		//	BaggingClassify simpleClassify=new BaggingClassify(classifier, instances, 2, "bug_introducing");
+			BaggingClassify simpleClassify=new BaggingClassify(classifier, overInstances, 2,"bug_introducing");
+			simpleClassify.Evaluation();
+			for (double value: simpleClassify.getRes()) {
+				System.out.print(value+"  ");
+			}
+			System.out.println();
+			System.out.println();
 		}
-		System.out.println();
-	//	SimpleClassify simpleClassify=new SimpleClassify(classifier, overInstances,"bug_introducing");
-		BaggingClassify simpleClassify=new BaggingClassify(classifier, instances, 2, "bug_introducing");
-		simpleClassify.Evaluation();
-		for (double value: simpleClassify.getRes()) {
-			System.out.print(value+"  ");
-		}
+
+		
 	}
 
 	static void Auto() throws Exception {

@@ -180,4 +180,8 @@ public class Sample {
 		}
 		return res;
 	}
+	
+//	public Instances BalanceSample(Instances init,double ratio) {
+//		
+//	}
 }

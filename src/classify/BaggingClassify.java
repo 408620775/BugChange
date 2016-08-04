@@ -17,28 +17,44 @@ import weka.core.Instances;
  *
  */
 public class BaggingClassify extends Classify {
-	Bagging bagging;
+	MyBagging bagging;
 	int judge; // 0标示普通的bagging方法,1表示undersample,2表示oversample
-/**
- * 构造函数;指定用于构建bagging分类器的训练集以及子分类器类型.
- * @param classifier 子分类器.
- * @param instances bagging分类器的训练集.
- * @param ou 
- * @throws Exception
- */
-	public BaggingClassify(Classifier classifier, Instances instances, int ou,String claName)
-			throws Exception {
-		super(classifier, instances,claName);
 
+	/**
+	 * 构造函数;指定用于构建bagging分类器的训练集以及子分类器类型.
+	 * 
+	 * @param classifier
+	 *            子分类器.
+	 * @param instances
+	 *            bagging分类器的训练集.
+	 * @param ou
+	 * @throws Exception
+	 */
+	public BaggingClassify(Classifier classifier, Instances instances, int ou,
+			String claName) throws Exception {
+		super(classifier, instances, claName);
 
-		judge=ou;
-		//SimpleClassify simpleClassify = new SimpleClassify(cla);
+		 bagging = new MyBagging(classifier, instances, claName, ou);
+		judge = ou;
+		// SimpleClassify simpleClassify = new SimpleClassify(cla);
 
 	}
 
-
 	void Evaluation() throws Exception {
-		if (judge == 0) {
+		res = new ArrayList<>();
+		eval = new Evaluation(ins);
+		//ins.setClass(ins.attribute("bug_introducing"));
+		eval.crossValidateModel(bagging, ins, 10, new Random(1));
+		res.add(eval.recall(0));
+		res.add(eval.recall(1));
+		res.add(eval.precision(0));
+		res.add(eval.precision(1));
+		res.add(eval.fMeasure(0));
+		res.add(eval.fMeasure(1));
+		res.add(eval.areaUnderROC(1));
+		res.add(Math.sqrt(res.get(0) * res.get(1)));
+		return;
+	/*	if (judge == 0) {
 			bagging = new Bagging();
 			bagging.setClassifier(cla);
 			bagging.setNumIterations(10);
@@ -59,17 +75,17 @@ public class BaggingClassify extends Classify {
 		Instances temp = null;
 		List<Double[]> resDoubles = new ArrayList<>();
 		while (loop < 10) {
-			Sample sample=new Sample(className);
+			Sample sample = new Sample(className);
 			if (judge == 1) {
 				temp = sample.UnderSample(ins);
-			} else if (judge==2) {
+			} else if (judge == 2) {
 				temp = sample.OverSample(ins);
-			}else {
-				temp=sample.smote(ins);
+			} else {
+				temp = sample.smote(ins);
 			}
 			Double[] r = new Double[8];
 			eval = new Evaluation(ins);
-			cla= cla.getClass().newInstance();
+			cla = cla.getClass().newInstance();
 			eval.crossValidateModel(cla, temp, 10, new Random());
 			r[0] = eval.recall(0);
 			r[1] = eval.recall(1);
@@ -81,7 +97,7 @@ public class BaggingClassify extends Classify {
 			r[7] = Math.sqrt(r[0] * r[1]);
 			resDoubles.add(r);
 			loop++;
-			System.out.println("loop"+loop);
+			System.out.println("loop" + loop);
 		}
 		res = new ArrayList<>();
 		for (int i = 0; i < 8; i++) {
@@ -91,6 +107,6 @@ public class BaggingClassify extends Classify {
 			}
 			sum = sum / 10;
 			res.add(sum);
-		}
+		}*/
 	}
 }
