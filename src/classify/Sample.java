@@ -29,6 +29,10 @@ public class Sample {
 	public Sample(String claName) {
 		className = claName;
 	}
+	
+	public Sample(){
+		
+	}
 
 	/**
 	 * 过采样方法。
@@ -178,10 +182,9 @@ public class Sample {
 		for (int i = 0; i <totalNum; i++) {
 				res.add(init.instance(rn.nextInt(numInstance)));
 		}
+		res.setClass(res.attribute(className));
 		return res;
 	}
 	
-//	public Instances BalanceSample(Instances init,double ratio) {
-//		
-//	}
+
 }

@@ -12,40 +12,64 @@ import weka.classifiers.Classifier;
 import weka.classifiers.trees.J48;
 import weka.core.Instances;
 import weka.core.converters.ArffLoader;
+import weka.core.converters.ArffSaver;
 
 public class Main {
 
 	public static void main(String[] args) throws Exception {
+Auto();
+	
+		/*ArffLoader arffLoader = new ArffLoader();
+		arffLoader.setFile(new File("MyAnt.arff"));
+		Instances origin=arffLoader.getDataSet();
+		Sample sample=new Sample("bug_introducing");
+		Instances over=sample.OverSample(origin);
+		ArffSaver arffSaver=new ArffSaver();
+		arffSaver.setInstances(over);
+		arffSaver.setFile(new File("MyAntOver.arff"));
+		arffSaver.writeBatch();
+		//Auto2();
+		Classifier classifier = new J48();
+		SimpleClassify simpleClassify=new SimpleClassify(classifier, origin,"bug_introducing");
+		simpleClassify.Evaluation();
+		for (double value : simpleClassify.getRes()) {
+			System.out.print(value + "  ");
+		}*/
+	}
+
+	public static void Auto2() throws Exception {
 		File aFile = new File("V2Arff");
 		String[] arffFiles = aFile.list();
 		DecimalFormat df = new DecimalFormat("0.00");
 
 		for (String string : arffFiles) {
 			ArffLoader arffLoader = new ArffLoader();
-			arffLoader.setFile(new File(aFile.getName()+"/"+string));
-			Instances instances=arffLoader.getDataSet();
-			Sample sample=new Sample("bug_introducing");
-			Instances overInstances=sample.OverSample(instances);
+			arffLoader.setFile(new File(aFile.getName() + "/" + string));
+			Instances instances = arffLoader.getDataSet();
+			Sample sample = new Sample("bug_introducing");
+			Instances overInstances = sample.OverSample(instances);
 			System.out.println(string);
-			Classifier classifier=new J48();
-			BaggingClassify2 baggingClassify2=new BaggingClassify2(classifier, overInstances, "bug_introducing");
+			Classifier classifier = new J48();
+			BaggingClassify2 baggingClassify2 = new BaggingClassify2(
+					classifier, instances, "bug_introducing",1);
 			baggingClassify2.Evaluation();
-			for (double value: baggingClassify2.getRes()) {
-				System.out.print(value+"  ");
+			for (double value : baggingClassify2.getRes()) {
+				System.out.print(value + "  ");
 			}
 			System.out.println();
-		//	SimpleClassify simpleClassify=new SimpleClassify(classifier, overInstances,"bug_introducing");
-		//	BaggingClassify simpleClassify=new BaggingClassify(classifier, instances, 2, "bug_introducing");
-			BaggingClassify simpleClassify=new BaggingClassify(classifier, overInstances, 2,"bug_introducing");
+			// SimpleClassify simpleClassify=new SimpleClassify(classifier,
+			// overInstances,"bug_introducing");
+			// BaggingClassify simpleClassify=new BaggingClassify(classifier,
+			// instances, 2, "bug_introducing");
+			BaggingClassify simpleClassify = new BaggingClassify(classifier,
+					overInstances, "bug_introducing",0);
 			simpleClassify.Evaluation();
-			for (double value: simpleClassify.getRes()) {
-				System.out.print(value+"  ");
+			for (double value : simpleClassify.getRes()) {
+				System.out.print(value + "  ");
 			}
 			System.out.println();
 			System.out.println();
 		}
-
-		
 	}
 
 	static void Auto() throws Exception {

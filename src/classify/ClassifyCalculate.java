@@ -55,11 +55,6 @@ public class ClassifyCalculate {
 	 * @throws Exception
 	 */
 	public void totalCal() throws Exception {
-		List<Instances> subInstances = new ArrayList<>();
-		subInstances.add(ins);
-		Sample sample = new Sample(className);
-		subInstances.add(sample.UnderSample(ins));
-		subInstances.add(sample.OverSample(ins));
 		//subInstances.add(sample.smote(ins));
 		Classify classify = null;
 		
@@ -69,9 +64,9 @@ public class ClassifyCalculate {
 				keyList.add(classifys[i]);
 				keyList.add(methods[j]);
 				classify = new SimpleClassify((Classifier) Class.forName(
-						classifys[i]).newInstance(), subInstances.get(j),
-						className);
-				classify.Evaluation();
+						classifys[i]).newInstance(), ins,
+						className,j);
+				classify.Evaluation(j-3);
 				res.put(keyList, classify.getRes());
 			}
 
@@ -79,11 +74,11 @@ public class ClassifyCalculate {
 				List<String> keyList = new ArrayList<>();
 				keyList.add(classifys[i]);
 				keyList.add(methods[j]);
-//				classify = new BaggingClassify((Classifier) Class.forName(
-//						classifys[i]).newInstance(), ins, j - 3, className);
-				classify=new BaggingClassify2((Classifier) Class.forName(
-					classifys[i]).newInstance(), subInstances.get(j-3), className);
-				classify.Evaluation();
+				classify = new BaggingClassify((Classifier) Class.forName(
+						classifys[i]).newInstance(), ins, className, j - 3);
+//				classify=new BaggingClassify2((Classifier) Class.forName(
+//					classifys[i]).newInstance(), subInstances.get(j-3), className);
+				classify.Evaluation(j-3);
 				res.put(keyList, classify.getRes());
 			}
 		}

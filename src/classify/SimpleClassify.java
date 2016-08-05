@@ -24,7 +24,7 @@ import weka.core.Instances;
  *
  */
 public class SimpleClassify extends Classify{
-
+int choose;
 	/**
 	 * 构造函数。
 	 * 
@@ -35,8 +35,9 @@ public class SimpleClassify extends Classify{
 	 * @param cla
 	 *            使用的分类器。
 	 */
-	public SimpleClassify( Classifier cla,Instances ins,String claName) {
+	public SimpleClassify( Classifier cla,Instances ins,String claName,int choose) {
 		super(cla, ins,claName);
+		this.choose=choose;
 		ins.setClass(ins.attribute(className));
 	}
 
@@ -49,14 +50,11 @@ public class SimpleClassify extends Classify{
 	 * 
 	 * @throws Exception
 	 */
-	@Override
 public	void Evaluation() throws Exception {
 		// TODO Auto-generated method stub
 		res = new ArrayList<>();
-		eval = new Evaluation(ins);
+		eval = new MyEvalution(ins, choose);
 		eval.crossValidateModel(cla, ins, 10, new Random());
-	//	System.out.println(0+"---"+ins.attribute(ins.classIndex()).indexOfValue("turee"));
-	//	System.out.println(1+"---"+ins.attribute(ins.classIndex()).indexOfValue("1"));
 		res.add(eval.recall(0));
 		res.add(eval.recall(1));
 		res.add(eval.precision(0));

@@ -30,7 +30,6 @@ public class MyBagging extends Bagging {
 			int judge) throws Exception {
 		super();
 		super.setClassifier(classifier);
-
 		this.base = classifier;
 		this.instances = ins;
 		this.className = className;
@@ -66,27 +65,27 @@ public class MyBagging extends Bagging {
 		
 		for (int j = 0; j < m_Classifiers.length; j++) {
 			Instances bagData = null;
-		  if (choose == 0) {
-				bagData=sample.RandomSample(data, 1);
-			}else if (choose==1) {
-				bagData=sample.UnderSample(sample.RandomSample(data, 1));
-			}else {
-				bagData=sample.OverSample(sample.RandomSample(data, 1));
-			}
 		// create the in-bag dataset
-			/*if (m_CalcOutOfBag) {
+			if (m_CalcOutOfBag) {
 				inBag[j] = new boolean[data.numInstances()];
 				// bagData = resampleWithWeights(data, random, inBag[j]);
 				bagData = data.resampleWithWeights(random, inBag[j]);
 			} else {
-				bagData = data.resampleWithWeights(random);
+				/*bagData = data.resampleWithWeights(random);
 				if (bagSize < data.numInstances()) {
 					bagData.randomize(random);
 					Instances newBagData = new Instances(bagData, 0, bagSize);
 					bagData = newBagData;
-				}
+				}*/
+				 if (choose == 0) {
+						bagData=sample.RandomSample(data, 1);
+					}else if (choose==1) {
+						bagData=sample.UnderSample(data);
+					}else {
+						bagData=sample.OverSample(data);
+					}
 			}
-*/
+
 			if (m_Classifier instanceof Randomizable) {
 				((Randomizable) m_Classifiers[j]).setSeed(random.nextInt());
 			}
