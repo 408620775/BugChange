@@ -64,9 +64,9 @@ public class ClassifyCalculate {
 				List<String> keyList = new ArrayList<>();
 				keyList.add(classifys[i]);
 				keyList.add(methods[j]);
-				classify = new SimpleClassify((Classifier) Class.forName(
+				classify = new Classify((Classifier) Class.forName(
 						classifys[i]).newInstance(), ins,
-						className,j);
+						className);
 				classify.Evaluation(j-3);
 				res.put(keyList, classify.getRes());
 			}
@@ -79,7 +79,7 @@ public class ClassifyCalculate {
 						classifys[i]).newInstance(), ins, className, j-3);
 //				bagging.setClassifier((Classifier) Class.forName(
 //						classifys[i]).newInstance());
-				classify = new BaggingClassify(bagging, ins, className, j - 3);
+				classify = new Classify(bagging, ins, className);
 //				classify=new BaggingClassify2((Classifier) Class.forName(
 //					classifys[i]).newInstance(), subInstances.get(j-3), className);
 				classify.Evaluation();

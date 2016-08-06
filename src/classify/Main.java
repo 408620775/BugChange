@@ -50,8 +50,8 @@ Auto();
 			Instances overInstances = sample.OverSample(instances);
 			System.out.println(string);
 			Classifier classifier = new J48();
-			BaggingClassify2 baggingClassify2 = new BaggingClassify2(
-					classifier, instances, "bug_introducing",1);
+			Classify baggingClassify2 = new Classify(
+					classifier, instances, "bug_introducing");
 			baggingClassify2.Evaluation();
 			for (double value : baggingClassify2.getRes()) {
 				System.out.print(value + "  ");
@@ -61,8 +61,8 @@ Auto();
 			// overInstances,"bug_introducing");
 			// BaggingClassify simpleClassify=new BaggingClassify(classifier,
 			// instances, 2, "bug_introducing");
-			BaggingClassify simpleClassify = new BaggingClassify(classifier,
-					overInstances, "bug_introducing",0);
+			Classify simpleClassify = new Classify(classifier,
+					overInstances, "bug_introducing");
 			simpleClassify.Evaluation();
 			for (double value : simpleClassify.getRes()) {
 				System.out.print(value + "  ");
