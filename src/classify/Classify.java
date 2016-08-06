@@ -104,7 +104,7 @@ public class Classify {
 		res = new ArrayList<>();
 		List<List<Double>> TenRes = new ArrayList<>();
 		for (int i = 0; i < 10; i++) {
-			eval = new MyEvalution(ins, choose);
+			eval = new MyEvaluation(ins, choose);
 			eval.crossValidateModel(cla, ins, 10, new Random(1));
 			List<Double> tempResult = new ArrayList<>();
 			tempResult.add(eval.recall(0));

@@ -7,10 +7,10 @@ import weka.classifiers.Evaluation;
 import weka.core.Instances;
 import weka.core.Range;
 
-public class MyEvalution extends Evaluation {
+public class MyEvaluation extends Evaluation {
 	int choose;
 
-	public MyEvalution(Instances data, int choose) throws Exception {
+	public MyEvaluation(Instances data, int choose) throws Exception {
 		super(data);
 		this.choose = choose;
 	}
