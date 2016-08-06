@@ -94,7 +94,7 @@ Auto();
 			classifyCalculate.totalCal();
 			Map<List<String>, List<Double>> resMap = classifyCalculate.getRes();
 			File saverFile = new File(save.getName() + "/"
-					+ string.replace(".arff", "result.csv"));
+					+ string.replace(".arff", "resultMy.csv"));
 			if (saverFile.exists()) {
 				saverFile.createNewFile();
 			}

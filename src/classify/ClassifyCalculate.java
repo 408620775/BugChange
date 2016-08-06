@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import weka.classifiers.Classifier;
+import weka.classifiers.meta.Bagging;
 import weka.core.Instances;
 
 /**
@@ -74,11 +75,14 @@ public class ClassifyCalculate {
 				List<String> keyList = new ArrayList<>();
 				keyList.add(classifys[i]);
 				keyList.add(methods[j]);
-				classify = new BaggingClassify((Classifier) Class.forName(
-						classifys[i]).newInstance(), ins, className, j - 3);
+				MyBagging bagging=new MyBagging((Classifier) Class.forName(
+						classifys[i]).newInstance(), ins, className, j-3);
+//				bagging.setClassifier((Classifier) Class.forName(
+//						classifys[i]).newInstance());
+				classify = new BaggingClassify(bagging, ins, className, j - 3);
 //				classify=new BaggingClassify2((Classifier) Class.forName(
 //					classifys[i]).newInstance(), subInstances.get(j-3), className);
-				classify.Evaluation(j-3);
+				classify.Evaluation();
 				res.put(keyList, classify.getRes());
 			}
 		}

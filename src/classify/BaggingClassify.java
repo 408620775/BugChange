@@ -30,27 +30,10 @@ public class BaggingClassify extends Classify {
 	 * @param ou
 	 * @throws Exception
 	 */
-	public BaggingClassify(Classifier classifier, Instances instances, String claName,int choose
-			) throws Exception {
+	public BaggingClassify(Classifier classifier, Instances instances,
+			String claName, int choose) throws Exception {
 		super(classifier, instances, claName);
-		 bagging = new MyBagging(classifier, instances, claName, choose);
+		bagging = new MyBagging(classifier, instances, claName, choose);
 		this.choose = choose;
-		// SimpleClassify simpleClassify = new SimpleClassify(cla);
-
-	}
-
-	void Evaluation() throws Exception {
-		res = new ArrayList<>();
-		eval = new MyEvalution(ins,choose);
-		eval.crossValidateModel(bagging, ins, 10, new Random(1));
-		res.add(eval.recall(0));
-		res.add(eval.recall(1));
-		res.add(eval.precision(0));
-		res.add(eval.precision(1));
-		res.add(eval.fMeasure(0));
-		res.add(eval.fMeasure(1));
-		res.add(eval.areaUnderROC(1));
-		res.add(Math.sqrt(res.get(0) * res.get(1)));
-		return;
 	}
 }

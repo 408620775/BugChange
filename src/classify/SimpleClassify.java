@@ -44,25 +44,4 @@ int choose;
 	public SimpleClassify(Classifier cla,String claName) {
 		super(cla,claName);
 	}
-
-	/**
-	 * 执行分类，将分类得到的若干结果存储到res数组中。
-	 * 
-	 * @throws Exception
-	 */
-public	void Evaluation() throws Exception {
-		// TODO Auto-generated method stub
-		res = new ArrayList<>();
-		eval = new MyEvalution(ins, choose);
-		eval.crossValidateModel(cla, ins, 10, new Random());
-		res.add(eval.recall(0));
-		res.add(eval.recall(1));
-		res.add(eval.precision(0));
-		res.add(eval.precision(1));
-		res.add(eval.fMeasure(0));
-		res.add(eval.fMeasure(1));
-		res.add(eval.areaUnderROC(1));
-		res.add(Math.sqrt(res.get(0)* res.get(1)));
-		
-	}
 }

@@ -18,7 +18,6 @@ public class MyEvalution extends Evaluation {
 	public void crossValidateModel(Classifier classifier, Instances data,
 			int numFolds, Random random, Object... forPredictionsPrinting)
 			throws Exception {
-
 		// Make a copy of the data we can reorder
 		data = new Instances(data);
 		data.randomize(random);
@@ -44,13 +43,13 @@ public class MyEvalution extends Evaluation {
 		// Do the folds
 		for (int i = 0; i < numFolds; i++) {
 			Instances trainOrigin = data.trainCV(numFolds, i, random);
-			Instances train=null;
-			if (choose==0) {
-				train=trainOrigin;
-			}else if (choose==1) {
-				train=sample.UnderSample(trainOrigin);
-			}else {
-				train=sample.OverSample(trainOrigin);
+			Instances train = null;
+			if (choose == 0) {
+				train = trainOrigin;
+			} else if (choose == 1) {
+				train = sample.UnderSample(trainOrigin);
+			} else {
+				train = sample.OverSample(trainOrigin);
 			}
 			setPriors(train);
 			Classifier copiedClassifier = Classifier.makeCopy(classifier);
