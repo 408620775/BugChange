@@ -52,7 +52,7 @@ Auto();
 			Classifier classifier = new J48();
 			Classify baggingClassify2 = new Classify(
 					classifier, instances, "bug_introducing");
-			baggingClassify2.Evaluation();
+			baggingClassify2.Evaluation(0);
 			for (double value : baggingClassify2.getRes()) {
 				System.out.print(value + "  ");
 			}
@@ -63,7 +63,7 @@ Auto();
 			// instances, 2, "bug_introducing");
 			Classify simpleClassify = new Classify(classifier,
 					overInstances, "bug_introducing");
-			simpleClassify.Evaluation();
+			simpleClassify.Evaluation(0);
 			for (double value : simpleClassify.getRes()) {
 				System.out.print(value + "  ");
 			}

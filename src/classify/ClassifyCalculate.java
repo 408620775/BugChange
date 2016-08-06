@@ -82,7 +82,7 @@ public class ClassifyCalculate {
 				classify = new Classify(bagging, ins, className);
 //				classify=new BaggingClassify2((Classifier) Class.forName(
 //					classifys[i]).newInstance(), subInstances.get(j-3), className);
-				classify.Evaluation();
+				classify.Evaluation(0);
 				res.put(keyList, classify.getRes());
 			}
 		}

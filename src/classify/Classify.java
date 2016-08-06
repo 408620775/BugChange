@@ -128,33 +128,4 @@ public class Classify {
 
 	}
 
-
-
-	public void Evaluation() throws Exception{
-		res = new ArrayList<>();
-		List<List<Double>> TenRes = new ArrayList<>();
-		for (int i = 0; i < 10; i++) {
-			eval = new Evaluation(ins);
-			eval.crossValidateModel(cla, ins, 10, new Random(1));
-			List<Double> tempResult = new ArrayList<>();
-			tempResult.add(eval.recall(0));
-			tempResult.add(eval.recall(1));
-			tempResult.add(eval.precision(0));
-			tempResult.add(eval.precision(1));
-			tempResult.add(eval.fMeasure(0));
-			tempResult.add(eval.fMeasure(1));
-			tempResult.add(eval.areaUnderROC(1));
-			tempResult.add(Math.sqrt(tempResult.get(0) * tempResult.get(1)));
-			TenRes.add(tempResult);
-		}
-
-		for (int i = 0; i < 8; i++) {
-			double temp = 0.0;
-			for (int j = 0; j < 10; j++) {
-				temp = temp + TenRes.get(j).get(i);
-			}
-			res.add(temp / 10);
-		}
-	}
-
 }
