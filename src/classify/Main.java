@@ -17,42 +17,24 @@ import weka.core.converters.ArffSaver;
 public class Main {
 
 	public static void main(String[] args) throws Exception {
-Auto();
-	
-		/*ArffLoader arffLoader = new ArffLoader();
-		arffLoader.setFile(new File("MyAnt.arff"));
-		Instances origin=arffLoader.getDataSet();
-		Sample sample=new Sample("bug_introducing");
-		Instances over=sample.OverSample(origin);
-		ArffSaver arffSaver=new ArffSaver();
-		arffSaver.setInstances(over);
-		arffSaver.setFile(new File("MyAntOver.arff"));
-		arffSaver.writeBatch();
-		//Auto2();
-		Classifier classifier = new J48();
-		SimpleClassify simpleClassify=new SimpleClassify(classifier, origin,"bug_introducing");
-		simpleClassify.Evaluation();
-		for (double value : simpleClassify.getRes()) {
-			System.out.print(value + "  ");
-		}*/
+		Auto2();
 	}
 
 	public static void Auto2() throws Exception {
 		File aFile = new File("V2Arff");
 		String[] arffFiles = aFile.list();
-		DecimalFormat df = new DecimalFormat("0.00");
+		
 
-		for (String string : arffFiles) {
+		//for (String string : arffFiles) {
 			ArffLoader arffLoader = new ArffLoader();
-			arffLoader.setFile(new File(aFile.getName() + "/" + string));
+			arffLoader.setFile(new File(aFile.getName() + "/" + "MyCamel.arff"));
 			Instances instances = arffLoader.getDataSet();
-			Sample sample = new Sample("bug_introducing");
-			Instances overInstances = sample.OverSample(instances);
-			System.out.println(string);
+			System.out.println(instances.numInstances());
+		//	System.out.println(string);
 			Classifier classifier = new J48();
 			Classify baggingClassify2 = new Classify(
 					classifier, instances, "bug_introducing");
-			baggingClassify2.Evaluation(0);
+			baggingClassify2.Evaluation100(2);
 			for (double value : baggingClassify2.getRes()) {
 				System.out.print(value + "  ");
 			}
@@ -61,15 +43,15 @@ Auto();
 			// overInstances,"bug_introducing");
 			// BaggingClassify simpleClassify=new BaggingClassify(classifier,
 			// instances, 2, "bug_introducing");
-			Classify simpleClassify = new Classify(classifier,
-					overInstances, "bug_introducing");
-			simpleClassify.Evaluation(0);
-			for (double value : simpleClassify.getRes()) {
-				System.out.print(value + "  ");
-			}
-			System.out.println();
-			System.out.println();
-		}
+//			Classify simpleClassify = new Classify(classifier,
+//					overInstances, "bug_introducing");
+//			simpleClassify.Evaluation100(0);
+//			for (double value : simpleClassify.getRes()) {
+//				System.out.print(value + "  ");
+//			}
+//			System.out.println();
+//			System.out.println();
+	//	}
 	}
 
 	static void Auto() throws Exception {
@@ -82,7 +64,9 @@ Auto();
 		DecimalFormat df = new DecimalFormat("0.00");
 
 		for (String string : arffFiles) {
+			System.out.println("===================="+string+"=======================");
 			File arffFile = new File(file.getName() + "/" + string);
+//		File arffFile=new File("MyItextpdf.arff");
 			ArffLoader arffLoader = new ArffLoader();
 			arffLoader.setFile(arffFile);
 
@@ -92,7 +76,8 @@ Auto();
 			ClassifyCalculate classifyCalculate = new ClassifyCalculate(
 					instances, "bug_introducing");
 			classifyCalculate.totalCal();
-			Map<List<String>, List<Double>> resMap = classifyCalculate.getRes();
+		Map<List<String>, List<Double>> resMap = classifyCalculate.getRes();
+
 			File saverFile = new File(save.getName() + "/"
 					+ string.replace(".arff", "resultMy.csv"));
 			if (saverFile.exists()) {

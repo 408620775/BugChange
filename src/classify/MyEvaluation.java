@@ -24,7 +24,14 @@ public class MyEvaluation extends Evaluation {
 		if (data.classAttribute().isNominal()) {
 			data.stratify(numFolds);
 		}
-
+		/*if (choose==0) {
+			System.out.println("MyEvluation common");
+		}else if (choose==1) {
+			System.out.println("MyEvluation under");
+		}else if (choose==2) {
+			System.out.println("MyEvluation over");
+		}*/
+		
 		// We assume that the first element is a StringBuffer, the second a
 		// Range
 		// (attributes
@@ -43,13 +50,17 @@ public class MyEvaluation extends Evaluation {
 		// Do the folds
 		for (int i = 0; i < numFolds; i++) {
 			Instances trainOrigin = data.trainCV(numFolds, i, random);
+			System.out.println("trainOrigin's size is "+trainOrigin.numInstances());
 			Instances train = null;
 			if (choose == 0) {
 				train = trainOrigin;
+				System.out.println("common num of instances is "+train.numInstances());
 			} else if (choose == 1) {
 				train = sample.UnderSample(trainOrigin);
+				System.out.println("underSample num of instances is "+train.numInstances());
 			} else {
 				train = sample.OverSample(trainOrigin);
+				System.out.println("overSample num of instances is "+train.numInstances());
 			}
 			setPriors(train);
 			Classifier copiedClassifier = Classifier.makeCopy(classifier);

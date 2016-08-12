@@ -47,6 +47,7 @@ public class ClassifyCalculate {
 	public ClassifyCalculate(Instances instances, String claName) {
 		this.ins = instances;
 		this.className = claName;
+		this.ins.setClass(ins.attribute(className));
 		res = new LinkedHashMap<>();
 	}
 
@@ -67,7 +68,7 @@ public class ClassifyCalculate {
 				classify = new Classify((Classifier) Class.forName(
 						classifys[i]).newInstance(), ins,
 						className);
-				classify.Evaluation(j-3);
+				classify.Evaluation100(j);
 				res.put(keyList, classify.getRes());
 			}
 
@@ -75,14 +76,12 @@ public class ClassifyCalculate {
 				List<String> keyList = new ArrayList<>();
 				keyList.add(classifys[i]);
 				keyList.add(methods[j]);
-				MyBagging bagging=new MyBagging((Classifier) Class.forName(
-						classifys[i]).newInstance(), ins, className, j-3);
-//				bagging.setClassifier((Classifier) Class.forName(
-//						classifys[i]).newInstance());
+				MyBagging2 bagging=new MyBagging2(className, j-3);
+	//			Bagging bagging=new Bagging();
+				bagging.setClassifier((Classifier) Class.forName(
+						classifys[i]).newInstance());
 				classify = new Classify(bagging, ins, className);
-//				classify=new BaggingClassify2((Classifier) Class.forName(
-//					classifys[i]).newInstance(), subInstances.get(j-3), className);
-				classify.Evaluation(0);
+				classify.Evaluation100(0);
 				res.put(keyList, classify.getRes());
 			}
 		}

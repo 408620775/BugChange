@@ -73,6 +73,9 @@ public class Sample {
 				numNo++;
 			}
 		}
+		
+		System.out.println("the class one's number is "+YesInstances.numInstances());
+		System.out.println("the class other's number is "+Noinstances.numInstances());
 		// 如果数量相等，实际上是没有执行过采样的。
 		if (numYes == numNo) {
 			return init;
@@ -101,10 +104,12 @@ public class Sample {
 			Instances instances2, double ratio) {
 		int numSample = (int) Math.ceil(instances1.numInstances() * ratio); // 会不会由于实例数过多而崩溃？
 		int numNo = instances2.numInstances();
+	//	instances2.randomize(random);
 		Random rn = new Random();
 		for (int i = 0; i < numSample; i++) {
 			instances1.add(instances2.instance(rn.nextInt(numNo)));
 		}
+		instances1.randomize(rn);
 		return instances1;
 	}
 

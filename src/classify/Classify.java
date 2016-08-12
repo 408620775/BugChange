@@ -82,7 +82,7 @@ public class Classify {
 		this.cla = classifier;
 		this.ins = instances;
 		this.className = claName;
-		instances.setClass(instances.attribute(className));
+		ins.setClass(ins.attribute(className));
 	}
 
 	/**
@@ -100,12 +100,12 @@ public class Classify {
 		this.className = claName;
 	}
 
-	void Evaluation(int choose) throws Exception {
+	void Evaluation100(int choose) throws Exception {
 		res = new ArrayList<>();
 		List<List<Double>> TenRes = new ArrayList<>();
 		for (int i = 0; i < 10; i++) {
 			eval = new MyEvaluation(ins, choose);
-			eval.crossValidateModel(cla, ins, 10, new Random(1));
+			eval.crossValidateModel(cla, ins, 10, new Random(i));
 			List<Double> tempResult = new ArrayList<>();
 			tempResult.add(eval.recall(0));
 			tempResult.add(eval.recall(1));
@@ -128,4 +128,18 @@ public class Classify {
 
 	}
 
+	public void Evaluation10(int choose) throws Exception {
+		res = new ArrayList<>();
+		eval = new MyEvaluation(ins, choose);
+		eval.crossValidateModel(cla, ins, 10, new Random());
+		res.add(eval.recall(0));
+		res.add(eval.recall(1));
+		res.add(eval.precision(0));
+		res.add(eval.precision(1));
+		res.add(eval.fMeasure(0));
+		res.add(eval.fMeasure(1));
+		res.add(eval.areaUnderROC(1));
+		res.add(Math.sqrt(res.get(0) * res.get(1)));
+	}
+	
 }
