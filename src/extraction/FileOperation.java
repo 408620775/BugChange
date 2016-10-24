@@ -181,4 +181,12 @@ public class FileOperation {
 		return keySet;
 	}
 
+	public static void writeStringBuffer(StringBuffer sBuffer, String outFile)
+			throws IOException {
+		BufferedWriter bWriter = new BufferedWriter(new FileWriter(new File(
+				outFile)));
+		bWriter.append(sBuffer);
+		bWriter.flush();
+		bWriter.close();
+	}
 }
