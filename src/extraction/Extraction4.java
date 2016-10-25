@@ -11,7 +11,7 @@ public class Extraction4 extends Extraction {
 
 	public void printRevInfo(String outFile) throws SQLException, IOException {
 		int idsInEx1 = 0;
-		int finds = start;
+		int finds = start-1;
 		while (idsInEx1 == 0) {
 			sql = "select min(id) from extraction1 where commit_id="
 					+ commit_ids.get(finds);
@@ -57,8 +57,8 @@ public class Extraction4 extends Extraction {
 	}
 
 	public static void main(String[] args) throws Exception {
-		Extraction4 extraction4 = new Extraction4("MyVoldemort", 501, 800);
-		extraction4.printRevInfo("voldeTest");
+		Extraction4 extraction4 = new Extraction4("MyCamel", 2501, 2800);
+		extraction4.printRevInfo("CamelInfo");
 
 	}
 
