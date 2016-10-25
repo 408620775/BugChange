@@ -19,15 +19,15 @@ public class SQLConnection {
 	Connection conn = null;
 	Statement stmt = null;
 	private String drivername, databasename, userName, password;
-
-	public SQLConnection(String propName) {
+	String propName="database.properties";
+	public SQLConnection(String baseName) {
 		File propsfile = new File(propName);
 		try {
 			FileInputStream fis = new FileInputStream(propsfile);
 			Properties prop = new Properties();
 			prop.load(fis);
 			drivername=prop.getProperty("Driver");
-			databasename=prop.getProperty("URL");
+			databasename=prop.getProperty("URL")+baseName;
 			userName=prop.getProperty("UserName");
 			password=prop.getProperty("Password");
 		} catch (FileNotFoundException e) {
