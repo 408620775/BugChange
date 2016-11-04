@@ -74,8 +74,8 @@ public class Sample {
 			}
 		}
 		
-		System.out.println("the class one's number is "+YesInstances.numInstances());
-		System.out.println("the class other's number is "+Noinstances.numInstances());
+		//System.out.println("the class one's number is "+YesInstances.numInstances());
+		//System.out.println("the class other's number is "+Noinstances.numInstances());
 		// 如果数量相等，实际上是没有执行过采样的。
 		if (numYes == numNo) {
 			return init;

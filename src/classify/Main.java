@@ -18,7 +18,7 @@ public class Main {
 	static DecimalFormat df = new DecimalFormat("0.00");
 
 	public static void main(String[] args) throws Exception {
-
+		excuteClassifyCalfulateForSingleFile("MyVoldemortFB.arff", "MyVoldemortFB.csv");
 	}
 
 	/**

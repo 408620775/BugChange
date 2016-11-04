@@ -50,17 +50,17 @@ public class MyEvaluation extends Evaluation {
 		// Do the folds
 		for (int i = 0; i < numFolds; i++) {
 			Instances trainOrigin = data.trainCV(numFolds, i, random);
-			System.out.println("trainOrigin's size is "+trainOrigin.numInstances());
+			//System.out.println("trainOrigin's size is "+trainOrigin.numInstances());
 			Instances train = null;
 			if (choose == 0) {
 				train = trainOrigin;
-				System.out.println("common num of instances is "+train.numInstances());
+			//	System.out.println("common num of instances is "+train.numInstances());
 			} else if (choose == 1) {
 				train = sample.UnderSample(trainOrigin);
-				System.out.println("underSample num of instances is "+train.numInstances());
+			//	System.out.println("underSample num of instances is "+train.numInstances());
 			} else {
 				train = sample.OverSample(trainOrigin);
-				System.out.println("overSample num of instances is "+train.numInstances());
+			//	System.out.println("overSample num of instances is "+train.numInstances());
 			}
 			setPriors(train);
 			Classifier copiedClassifier = Classifier.makeCopy(classifier);
