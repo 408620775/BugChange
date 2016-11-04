@@ -15,87 +15,70 @@ import weka.core.converters.ArffLoader;
 import weka.core.converters.ArffSaver;
 
 public class Main {
+	static DecimalFormat df = new DecimalFormat("0.00");
 
 	public static void main(String[] args) throws Exception {
-		Auto2();
+
 	}
 
-	public static void Auto2() throws Exception {
-		File aFile = new File("V2Arff");
-		String[] arffFiles = aFile.list();
-		
+	/**
+	 * 对单一的arff文件使用classifyCalculate执行分类计算,并将结果保存到文件中.
+	 * 
+	 * @param fileO
+	 *            原始的arff类输入文件.
+	 * @param fileS
+	 *            保存结果的csv文件.
+	 * @author niu
+	 * @throws Exception
+	 */
+	static void excuteClassifyCalfulateForSingleFile(String fileO, String fileS)
+			throws Exception {
+		System.out.println("====================" + fileO
+				+ "=======================");
+		File arffFile = new File(fileO);
+		ArffLoader arffLoader = new ArffLoader();
+		arffLoader.setFile(arffFile);
+		Instances instances = arffLoader.getDataSet();
+		ClassifyCalculate classifyCalculate = new ClassifyCalculate(instances,
+				"bug_introducing");
+		classifyCalculate.totalCal();
+		Map<List<String>, List<Double>> resMap = classifyCalculate.getRes();
 
-		//for (String string : arffFiles) {
-			ArffLoader arffLoader = new ArffLoader();
-			arffLoader.setFile(new File(aFile.getName() + "/" + "MyCamel.arff"));
-			Instances instances = arffLoader.getDataSet();
-			System.out.println(instances.numInstances());
-		//	System.out.println(string);
-			Classifier classifier = new J48();
-			Classify baggingClassify2 = new Classify(
-					classifier, instances, "bug_introducing");
-			baggingClassify2.Evaluation100(2);
-			for (double value : baggingClassify2.getRes()) {
-				System.out.print(value + "  ");
+		File saverFile = new File(fileS);
+		if (saverFile.exists()) {
+			saverFile.createNewFile();
+		}
+		BufferedWriter bWriter = new BufferedWriter(new FileWriter(saverFile));
+		for (List<String> key : resMap.keySet()) {
+			for (String string2 : key) {
+				bWriter.append(string2 + ",");
 			}
-			System.out.println();
-			// SimpleClassify simpleClassify=new SimpleClassify(classifier,
-			// overInstances,"bug_introducing");
-			// BaggingClassify simpleClassify=new BaggingClassify(classifier,
-			// instances, 2, "bug_introducing");
-//			Classify simpleClassify = new Classify(classifier,
-//					overInstances, "bug_introducing");
-//			simpleClassify.Evaluation100(0);
-//			for (double value : simpleClassify.getRes()) {
-//				System.out.print(value + "  ");
-//			}
-//			System.out.println();
-//			System.out.println();
-	//	}
+			for (double dou : resMap.get(key)) {
+				bWriter.append(df.format(dou) + ",");
+			}
+			bWriter.append("\n");
+		}
+		bWriter.flush();
+		bWriter.close();
 	}
 
-	static void Auto() throws Exception {
-		File file = new File("V2Arff");
-		String[] arffFiles = file.list();
-		File save = new File("Result");
+	/**
+	 *对文件夹folderO下所有的arff文件使用classifyCalculate执行分类计算,并将结果保存到指定文件夹folderS中.
+	 * @param folderO 包含待执行所有arff文件的文件夹.
+	 * @param folderS 保存所有arff文件分类结果的文件夹.
+	 * @author niu
+	 * @throws Exception
+	 */
+	static void excuteClassifyCalfulateForMulFile(String folderO,String folderS) throws Exception {
+		File file = new File(folderO);
+		File save = new File(folderS);
 		if (!save.exists()) {
 			save.mkdir();
 		}
-		DecimalFormat df = new DecimalFormat("0.00");
-
+		String[] arffFiles = file.list();
 		for (String string : arffFiles) {
-			System.out.println("===================="+string+"=======================");
-			File arffFile = new File(file.getName() + "/" + string);
-//		File arffFile=new File("MyItextpdf.arff");
-			ArffLoader arffLoader = new ArffLoader();
-			arffLoader.setFile(arffFile);
-
-			Instances instances = arffLoader.getDataSet();
-			// PreProcess preProcess = new PreProcess();
-			// instances = preProcess.NumLn(instances, "bug_introducing");
-			ClassifyCalculate classifyCalculate = new ClassifyCalculate(
-					instances, "bug_introducing");
-			classifyCalculate.totalCal();
-		Map<List<String>, List<Double>> resMap = classifyCalculate.getRes();
-
-			File saverFile = new File(save.getName() + "/"
-					+ string.replace(".arff", "resultMy.csv"));
-			if (saverFile.exists()) {
-				saverFile.createNewFile();
-			}
-			BufferedWriter bWriter = new BufferedWriter(new FileWriter(
-					saverFile));
-			for (List<String> key : resMap.keySet()) {
-				for (String string2 : key) {
-					bWriter.append(string2 + ",");
-				}
-				for (double dou : resMap.get(key)) {
-					bWriter.append(df.format(dou) + ",");
-				}
-				bWriter.append("\n");
-			}
-			bWriter.flush();
-			bWriter.close();
+			String saveFile=folderS+"/"+string.replace(".arff", ".csv");
+			excuteClassifyCalfulateForSingleFile(folderO+"/"+string, saveFile);
 		}
 	}
 }
