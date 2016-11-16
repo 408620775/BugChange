@@ -4,5 +4,6 @@
 	<classpathentry kind="lib" path="/home/niu/workspace/mysql-connector-java-5.1.38/mysql-connector-java-5.1.38-bin.jar"/>
 	<classpathentry kind="lib" path="/home/niu/jar/weka.jar" sourcepath="/home/niu/jar/weka-src.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="/home/niu/jar/jxl.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
