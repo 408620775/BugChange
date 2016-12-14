@@ -1,6 +1,7 @@
 package pers.bbn.changeBug.classify;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
@@ -9,25 +10,68 @@ import weka.classifiers.Evaluation;
 import weka.core.Instances;
 
 /**
- * 抽象分类器类.
+ * 分类器类,用于执行分类任务,并输出分类结果.
  * 
  * @author niu
  *
  */
 public class Classify {
-	Classifier cla;
-	Evaluation eval;
-	Instances ins;
-	List<Double> res;
-	public String className = "bug_introducing";
+	private Classifier cla;
+	private Evaluation eval;
+	private Instances ins;
+	private List<Double> res;
+	private String className = "bug_introducing";
 
 	/**
-	 * 返回分类器评估结果.
+	 * 查看当前所用评估对象.
+	 * @return 当前的评估对象.
+	 */
+	public Evaluation getEval() {
+		return eval;
+	}
+
+	/**
+	 * 设置评估结果时使用的评估对象.
+	 * @param eval
+	 */
+	public void setEval(Evaluation eval) {
+		this.eval = eval;
+	}
+	/**
+	 * 查看当前类属性名称
+	 * 
+	 * @return 类属性名称
+	 */
+	public String getClassName() {
+		return className;
+	}
+
+	/**
+	 * 设置当前类属性,默认为"bug_introducing"
+	 * 
+	 * @param className
+	 *            类属性名称.
+	 */
+	public void setClassName(String className) {
+		this.className = className;
+	}
+
+	/**
+	 * 返回分类器评估结果.返回的实际上是结果的保护性拷贝,可以避免对象中的结果被恶意篡改,写着玩的.
 	 * 
 	 * @return 模型评估结果
 	 */
 	public List<Double> getRes() {
-		return res;
+		List<Double> result = null;
+		try {
+			result = new ArrayList<Double>(res.size());
+			Collections.copy(result, res);
+			return result;
+		} catch (NullPointerException e) {
+			System.out.println("the list of result is null!");
+			e.printStackTrace();
+			return result;
+		}
 	}
 
 	/**
@@ -86,7 +130,7 @@ public class Classify {
 	}
 
 	/**
-	 * 先通过分类器构造分类器类,稍后传入训练集.用于
+	 * 先通过分类器构造分类器类,稍后传入训练集.
 	 * 
 	 * @param classifier
 	 */
@@ -95,16 +139,18 @@ public class Classify {
 		this.className = claName;
 	}
 
-	public Classify(Instances instances, String claName) {
-		this.ins = instances;
-		this.className = claName;
-	}
-
+	/**
+	 * 執行10*10折交叉验证.eval的实现扩展性差,但就目前来说是相对比较好的折衷.
+	 * 
+	 * @param choose 
+	 * @throws Exception
+	 */
 	void Evaluation100(int choose) throws Exception {
 		res = new ArrayList<>();
+		
 		List<List<Double>> TenRes = new ArrayList<>();
 		for (int i = 0; i < 10; i++) {
-			eval = new MyEvaluation(ins, choose);
+			eval = new MyEvaluation(ins,choose);
 			eval.crossValidateModel(cla, ins, 10, new Random(i));
 			List<Double> tempResult = new ArrayList<>();
 			tempResult.add(eval.recall(0));
@@ -128,6 +174,11 @@ public class Classify {
 
 	}
 
+	/**
+	 * 单纯的十折交叉验证
+	 * @param choose
+	 * @throws Exception
+	 */
 	public void Evaluation10(int choose) throws Exception {
 		res = new ArrayList<>();
 		eval = new MyEvaluation(ins, choose);
@@ -141,5 +192,5 @@ public class Classify {
 		res.add(eval.areaUnderROC(1));
 		res.add(Math.sqrt(res.get(0) * res.get(1)));
 	}
-	
+
 }
