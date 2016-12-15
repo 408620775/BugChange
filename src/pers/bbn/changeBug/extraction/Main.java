@@ -6,8 +6,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.sql.SQLException;
-import java.util.List;
 import java.util.Map;
 
 
@@ -84,8 +82,7 @@ public class Main {
 			text.append(line + "\n");
 		}
 		brReader.close();
-		Bow bow = new Bow();
-		Map<String, Integer> bag = bow.bowP(text);
+		Map<String, Integer> bag = Bow.bowP(text);
 		for (String s : bag.keySet()) {
 			System.out.println(s + "    " + bag.get(s));
 		}

@@ -4,21 +4,36 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 词袋类，用于将一些源码信息转为词向量的形式，目前转义符后跟数字的情况还没考虑。
- * 将源码按照是注释区还是非注释区一块块的解析，拆分。例如是对于注释区的内容，注释中的大量*是
- * 不能当做除法的。
+ * 词袋工具类，用于将一些源码信息转为词向量的形式，目前转义符后跟数字的情况还没考虑。
+ * 将源码按照是注释区还是非注释区一块块的解析，拆分。例如是对于注释区的内容，注释中的大量*是不能当做乘法的。
+ * 该类有三个主要的方法,分别为bow,bowP,bowPP(根据论文<Classifying Software Changes: Clean or
+ * Buggy?>编写).
+ * 
  * @author niu
  *
  */
-public class Bow {
-	Map<String, Integer> bag;
-	String[] dictory2 = { "!=", "==", "++", "--", "||", "&&", "<=", ">=" };
-	String[] dictory1 = { "=", "+", "-", "*", "/", "%", "!", "?" };
-	String[] dictory3 = { "=", "!=", "+", "*", "-", "||", "/", "&", "%", "!",
-			"?", ">=", "<=", "<", ">" }; // 去除注释中或者字符串中的特殊符号。
+public final class Bow {
+	private static String[] dictory2 = { "!=", "==", "++", "--", "||", "&&",
+			"<=", ">=" };
+	private static String[] dictory1 = { "=", "+", "-", "*", "/", "%", "!", "?" };
+	private static String[] dictory3 = { "=", "!=", "+", "*", "-", "||", "/",
+			"&", "%", "!", "?", ">=", "<=", "<", ">" }; // 去除注释中或者字符串中的特殊符号。
 
-	public Map<String, Integer> bow(String text) {
-		bag = new HashMap<String, Integer>();
+	/**
+	 * 禁止实例化
+	 */
+	private Bow() {
+
+	}
+
+	/**
+	 * 根据changelog信息,获取对应文本的词向量.
+	 * 
+	 * @param text 输入的文本信息.
+	 * @return 文本所对应的词向量.
+	 */
+	public static Map<String, Integer> bow(String text) {
+		Map<String, Integer> bag = new HashMap<String, Integer>();
 		int startIndex = 0;
 		int endIndex = 0;
 		while (endIndex <= text.length() - 1) {
@@ -47,11 +62,7 @@ public class Bow {
 		return bag;
 	}
 
-	public void printBag() {
-		System.out.println(bag);
-	}
-
-	public boolean isCharacter(char c) {
+	public static boolean isCharacter(char c) {
 		if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) {
 			return true;
 		}
@@ -67,7 +78,7 @@ public class Bow {
 	 *            当前索引位置
 	 * @return 下一次出现注释或者字符串的地方
 	 */
-	public int getIndex(StringBuffer text, int start) {
+	public static int getIndex(StringBuffer text, int start) {
 		while (start < text.length()) {
 			if (start < text.length() - 1
 					&& text.substring(start, start + 2).equals("/*")) {
@@ -103,14 +114,15 @@ public class Bow {
 	 *            源码内容
 	 * @return 转换后的词袋
 	 */
-	public Map<String, Integer> bowP(StringBuffer text) {
+	public static Map<String, Integer> bowP(StringBuffer text) {
 		StringBuffer hunkBuffer = new StringBuffer();
-		bag = new HashMap<String, Integer>();
+		Map<String, Integer> bag = new HashMap<String, Integer>();
+		@SuppressWarnings("unused")
 		int i = 1;
 		while (text.toString().length() > 0) {// 将源码区内容直接加入hunkBuffer，将注释区内容处理后加入hunkBuffer。
 			int start = 0;
 			start = getIndex(text, start);
-			if (start==text.length()) {   //如果start直接找到了文件末尾，则说明上面没有注释区。
+			if (start == text.length()) { // 如果start直接找到了文件末尾，则说明上面没有注释区。
 				hunkBuffer.append(" " + text.substring(0, start));
 				break;
 			}
@@ -154,13 +166,14 @@ public class Bow {
 				}
 				hunkBuffer.append(" " + removeSC2(rage));
 			} else if (startOper.equals("/*")) {
-				rage = text.substring(start + 2, text.substring(2).indexOf("*/")+2);
+				rage = text.substring(start + 2, text.substring(2)
+						.indexOf("*/") + 2);
 				hunkBuffer.append(" " + removeSC2(rage));
 				text.delete(0, text.substring(2).indexOf("*/") + 4);
 			} else {
 				text.deleteCharAt(0);
 				int tail = text.indexOf("\"");
-				while (tail >=1) {
+				while (tail >= 1) {
 					int numl = 0;
 					for (int j = tail - 1; j >= 0; j--) {
 						if (text.charAt(j) == '\\') {
@@ -186,7 +199,7 @@ public class Bow {
 		}
 
 		String dirList[] = hunkBuffer.toString().split(
-				"[\\.\\s\\)\\(;:,\"\\[\\]\\{\\}]|//]"); 
+				"[\\.\\s\\)\\(;:,\"\\[\\]\\{\\}]|//]");
 		for (String string : dirList) {
 			if (!string.equals("")) { // 这句话是不是也可以优化？
 				boolean contain = false;
@@ -222,7 +235,7 @@ public class Bow {
 		return bag;
 	}
 
-	private String removeSC2(String rage) {
+	private static String removeSC2(String rage) {
 		for (String string : dictory3) {
 			rage = rage.replace(string, " ");
 		}
@@ -242,7 +255,8 @@ public class Bow {
 	 *            要加入的bag
 	 * @return 是否包含操作符或者本身是操作符
 	 */
-	public boolean diviOper(String oper, String string, Map<String, Integer> bag) {
+	public static boolean diviOper(String oper, String string,
+			Map<String, Integer> bag) {
 		if (string.equals(oper)) {
 			putInBag(string, bag);
 			return true;
@@ -270,7 +284,7 @@ public class Bow {
 		return false;
 	}
 
-	public void putInBag(String string, Map<String, Integer> map) {
+	public static void putInBag(String string, Map<String, Integer> map) {
 		if (map.containsKey(string)) {
 			map.put(string, map.get(string) + 1);
 		} else {
@@ -278,8 +292,8 @@ public class Bow {
 		}
 	}
 
-	public Map<String, Integer> bowPP(String text) {
-		bag = new HashMap<>();
+	public static Map<String, Integer> bowPP(String text) {
+		Map<String, Integer> bag = new HashMap<>();
 		String dirList[] = text.split("/");
 		String regex = ".*[A-Z].*";
 		for (String string : dirList) {
@@ -319,5 +333,9 @@ public class Bow {
 			}
 		}
 		return bag;
+	}
+
+	public static void main(String[] args) {
+		System.out.println(bow("Test"));
 	}
 }

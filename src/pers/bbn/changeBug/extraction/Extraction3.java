@@ -43,7 +43,6 @@ public class Extraction3 extends Extraction {
 	Map<String, String> dictionary;
 	Map<String, String> dictionary2;
 	Set<String> currStrings;
-	Bow bow;
 	Map<List<Integer>, StringBuffer> content;
 	Map<String, Integer> colMap;
 	List<Integer> headmap;
@@ -187,7 +186,7 @@ public class Extraction3 extends Extraction {
 	 * @throws IOException
 	 */
 	public void changeLogInfo() throws SQLException, IOException {
-		bow = new Bow();
+		//bow = new Bow();
 		// 获得所有不同的commit_id
 		Set<Integer> commit_ids = new LinkedHashSet<>();
 		for (List<Integer> list : id_commitId_fileIds) {
@@ -203,7 +202,7 @@ public class Extraction3 extends Extraction {
 				resultSet = stmt.executeQuery(sql);
 				resultSet.next();
 				String message = resultSet.getString(1);
-				Map<String, Integer> bp = bow.bow(message);
+				Map<String, Integer> bp = Bow.bow(message);
 				for (String s : bp.keySet()) {
 					content = writeInfo(s, content, commitId, bp.get(s));
 				}
@@ -231,7 +230,7 @@ public class Extraction3 extends Extraction {
 
 				sql = "select patch from patches where commit_id="
 						+ list.get(1) + " and file_id=" + list.get(2);
-				bow = new Bow();
+				//bow = new Bow();
 				// sql = "select patch from patches where id=2354";
 				resultSet = stmt.executeQuery(sql);
 				String patchString = "";
@@ -270,7 +269,7 @@ public class Extraction3 extends Extraction {
 					sBuffer.append(line + "\n");
 				}
 				bReader.close();
-				Map<String, Integer> patch = bow.bowP(sBuffer);
+				Map<String, Integer> patch = Bow.bowP(sBuffer);
 
 				for (String s : patch.keySet()) {
 					content = writeInfo(s, content, list.get(1), list.get(2),
@@ -350,14 +349,14 @@ public class Extraction3 extends Extraction {
 		for (List<Integer> list : id_commitId_fileIds) {
 			sql = "select current_file_path from actions where commit_id="
 					+ list.get(1) + " and file_id=" + list.get(2);
-			bow = new Bow();
+			//bow = new Bow();
 			resultSet = stmt.executeQuery(sql);
 
 			if (!resultSet.next()) {
 				continue;
 			}
 			String path = resultSet.getString(1);
-			Map<String, Integer> pathName = bow.bowPP(path);
+			Map<String, Integer> pathName = Bow.bowPP(path);
 			for (String s : pathName.keySet()) {
 				content = writeInfo(s, content, list.get(1), list.get(2), // 两个函数可以整合为一个
 						pathName.get(s));
