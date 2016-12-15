@@ -3,17 +3,16 @@ package pers.bbn.changeBug.classify;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Map;
-
-import weka.classifiers.Classifier;
-import weka.classifiers.trees.J48;
 import weka.core.Instances;
 import weka.core.converters.ArffLoader;
-import weka.core.converters.ArffSaver;
-
+/**
+ * 客户端类,在此处执行单个或多个arff文件的分类任务.
+ * @author niu
+ *
+ */
 public class Main {
 	static DecimalFormat df = new DecimalFormat("0.00");
 	public static void main(String[] args) throws Exception {
