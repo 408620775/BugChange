@@ -2,9 +2,6 @@ package pers.bbn.changeBug.classify;
 
 import java.io.IOException;
 import java.util.Random;
-
-import com.sun.xml.internal.ws.encoding.soap.SOAP12Constants;
-
 import weka.core.FastVector;
 import weka.core.Instance;
 import weka.core.Instances;
@@ -12,7 +9,7 @@ import weka.filters.Filter;
 import weka.filters.supervised.instance.SMOTE;
 
 /**
- * 采样类，用于对不均衡数据进行处理。方式主要有过采样和欠采样两种。
+ * 采样工具类，用于对不均衡数据进行处理。方式主要有过采样和欠采样两种。
  * 
  * @author niu
  *
@@ -22,16 +19,30 @@ public class Sample {
 	private static String className = "bug_introducing";
 
 	/**
-	 * 构造函数,设置采样时的类标签,默认类标签为bug_introducing.
+	 * 查看当前采样样例的类标签.
+	 * 
+	 * @return
+	 */
+	public static String getClassName() {
+		return className;
+	}
+
+	/**
+	 * 设置当前采样样例的类标签,默认为"bug_introducing".
+	 * 
+	 * @param className
+	 */
+	public static void setClassName(String className) {
+		Sample.className = className;
+	}
+
+	/**
+	 * 构造函数,使类不可实例化.
 	 * 
 	 * @param claName
 	 */
-	public Sample(String claName) {
-		className = claName;
-	}
-	
-	public Sample(){
-		
+	private Sample() {
+
 	}
 
 	/**
@@ -41,7 +52,7 @@ public class Sample {
 	 * @return
 	 * @throws IOException
 	 */
-	public Instances OverSample(Instances init) throws IOException {
+	public static Instances OverSample(Instances init) throws IOException {
 		FastVector attInfo = new FastVector();
 		for (int i = 0; i < init.numAttributes(); i++) {
 			weka.core.Attribute temp = init.attribute(i);
@@ -73,9 +84,7 @@ public class Sample {
 				numNo++;
 			}
 		}
-		
-		//System.out.println("the class one's number is "+YesInstances.numInstances());
-		//System.out.println("the class other's number is "+Noinstances.numInstances());
+
 		// 如果数量相等，实际上是没有执行过采样的。
 		if (numYes == numNo) {
 			return init;
@@ -100,11 +109,11 @@ public class Sample {
 	 *            抽样后得到的不同的类标签的比例，即抽样后num(yesInstances)/num(noinstances)的比例，注意，
 	 *            由于为了 加速程序运行速度，最后实验结果抽样时设置为1。
 	 */
-	private static Instances excuteSample(Instances instances1,
+	private  static Instances excuteSample(Instances instances1,
 			Instances instances2, double ratio) {
 		int numSample = (int) Math.ceil(instances1.numInstances() * ratio); // 会不会由于实例数过多而崩溃？
 		int numNo = instances2.numInstances();
-	//	instances2.randomize(random);
+		// instances2.randomize(random);
 		Random rn = new Random();
 		for (int i = 0; i < numSample; i++) {
 			instances1.add(instances2.instance(rn.nextInt(numNo)));
@@ -121,7 +130,7 @@ public class Sample {
 	 * @return
 	 * @throws IOException
 	 */
-	public Instances UnderSample(Instances init) throws IOException {
+	public static Instances UnderSample(Instances init) throws IOException {
 		int numAttr = init.numAttributes();
 		int numInstance = init.numInstances();
 
@@ -164,7 +173,13 @@ public class Sample {
 		return res;
 	}
 
-	public Instances smote(Instances ins) throws Exception {
+	/**
+	 * smote采样.
+	 * @param ins
+	 * @return
+	 * @throws Exception
+	 */
+	public static Instances smote(Instances ins) throws Exception {
 		SMOTE smote = new SMOTE();
 		ins.setClass(ins.attribute(className));
 		smote.setInputFormat(ins);
@@ -172,11 +187,17 @@ public class Sample {
 		return smoteInstances;
 	}
 
-	public Instances RandomSample(Instances init, double ratio) {
+	/**
+	 * 有放回的随机抽样.
+	 * @param init 初始的样例集.
+	 * @param ratio 抽样比率.
+	 * @return 抽样后得到的样例集.
+	 */
+	public static Instances randomSampleWithReplacement(Instances init, double ratio) {
 		int numAttr = init.numAttributes();
 		int numInstance = init.numInstances();
 		int totalNum = (int) (numInstance * ratio);
-		
+
 		FastVector attInfo = new FastVector();
 		for (int i = 0; i < numAttr; i++) {
 			weka.core.Attribute temp = init.attribute(i);
@@ -184,12 +205,11 @@ public class Sample {
 		}
 		Instances res = new Instances("Res", attInfo, totalNum);
 		Random rn = new Random();
-		for (int i = 0; i <totalNum; i++) {
-				res.add(init.instance(rn.nextInt(numInstance)));
+		for (int i = 0; i < totalNum; i++) {
+			res.add(init.instance(rn.nextInt(numInstance)));
 		}
 		res.setClass(res.attribute(className));
 		return res;
 	}
-	
 
 }

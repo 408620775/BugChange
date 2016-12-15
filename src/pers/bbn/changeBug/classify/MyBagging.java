@@ -299,7 +299,7 @@ public class MyBagging extends RandomizableIteratedSingleClassifierEnhancer
 		if (m_CalcOutOfBag)
 			inBag = new boolean[m_Classifiers.length][];
 		
-		Sample sample = new Sample(className);
+		Sample.setClassName(className);
 		for (int j = 0; j < m_Classifiers.length; j++) {
 			Instances bagData = null;
 
@@ -311,11 +311,11 @@ public class MyBagging extends RandomizableIteratedSingleClassifierEnhancer
 			} else {
 				data.randomize(random);
 				if (choose == 0) {
-					bagData = sample.RandomSample(data, 1);
+					bagData = Sample.randomSampleWithReplacement(data, 1);
 				} else if (choose == 1) {
-					bagData = sample.UnderSample(data);
+					bagData = Sample.UnderSample(data);
 				} else {
-					bagData = sample.OverSample(data);
+					bagData = Sample.OverSample(data);
 				}
 			}
 

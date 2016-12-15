@@ -1,7 +1,6 @@
 package pers.bbn.changeBug.classify;
 
 import java.util.Random;
-
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
 import weka.core.Instances;
@@ -28,6 +27,7 @@ public final class MyEvaluation extends Evaluation {
 		this.choose=choose;
 	}
 
+	@Override
 	public void crossValidateModel(Classifier classifier, Instances data,
 			int numFolds, Random random, Object... forPredictionsPrinting)
 			throws Exception {
@@ -37,18 +37,6 @@ public final class MyEvaluation extends Evaluation {
 		if (data.classAttribute().isNominal()) {
 			data.stratify(numFolds);
 		}
-		/*
-		 * if (choose==0) { System.out.println("MyEvluation common"); }else if
-		 * (choose==1) { System.out.println("MyEvluation under"); }else if
-		 * (choose==2) { System.out.println("MyEvluation over"); }
-		 */
-
-		// We assume that the first element is a StringBuffer, the second a
-		// Range
-		// (attributes
-		// to output) and the third a Boolean (whether or not to output a
-		// distribution instead
-		// of just a classification)
 		if (forPredictionsPrinting.length > 0) {
 			// print the header first
 			StringBuffer buff = (StringBuffer) forPredictionsPrinting[0];
@@ -57,7 +45,6 @@ public final class MyEvaluation extends Evaluation {
 					.booleanValue();
 			printClassificationsHeader(data, attsToOutput, printDist, buff);
 		}
-		Sample sample = new Sample();
 		// Do the folds
 		for (int i = 0; i < numFolds; i++) {
 			Instances trainOrigin = data.trainCV(numFolds, i, random);
@@ -65,9 +52,9 @@ public final class MyEvaluation extends Evaluation {
 			if (choose == 0) {
 				train = trainOrigin;
 			} else if (choose == 1) {
-				train = sample.UnderSample(trainOrigin);
+				train = Sample.UnderSample(trainOrigin);
 			} else {
-				train = sample.OverSample(trainOrigin);
+				train = Sample.OverSample(trainOrigin);
 			}
 			setPriors(train);
 			Classifier copiedClassifier = Classifier.makeCopy(classifier);
