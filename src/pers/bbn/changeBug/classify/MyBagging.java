@@ -1,26 +1,5 @@
 package pers.bbn.changeBug.classify;
 
-/*
- *    This program is free software; you can redistribute it and/or modify
- *    it under the terms of the GNU General Public License as published by
- *    the Free Software Foundation; either version 2 of the License, or
- *    (at your option) any later version.
- *
- *    This program is distributed in the hope that it will be useful,
- *    but WITHOUT ANY WARRANTY; without even the implied warranty of
- *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *    GNU General Public License for more details.
- *
- *    You should have received a copy of the GNU General Public License
- *    along with this program; if not, write to the Free Software
- *    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- */
-
-/*
- *    Bagging.java
- *    Copyright (C) 1999 University of Waikato, Hamilton, New Zealand
- *
- */
 import java.util.Enumeration;
 import java.util.Random;
 import java.util.Vector;
@@ -39,116 +18,8 @@ import weka.core.TechnicalInformationHandler;
 import weka.core.Utils;
 import weka.core.WeightedInstancesHandler;
 
-/**
- * <!-- globalinfo-start --> Class for bagging a classifier to reduce variance.
- * Can do classification and regression depending on the base learner. <br/>
- * <br/>
- * For more information, see<br/>
- * <br/>
- * Leo Breiman (1996). Bagging predictors. Machine Learning. 24(2):123-140.
- * <p/>
- * <!-- globalinfo-end -->
- * 
- * <!-- technical-bibtex-start --> BibTeX:
- * 
- * <pre>
- * &#64;article{Breiman1996,
- *    author = {Leo Breiman},
- *    journal = {Machine Learning},
- *    number = {2},
- *    pages = {123-140},
- *    title = {Bagging predictors},
- *    volume = {24},
- *    year = {1996}
- * }
- * </pre>
- * <p/>
- * <!-- technical-bibtex-end -->
- * 
- * <!-- options-start --> Valid options are:
- * <p/>
- * 
- * <pre>
- * -P
- *  Size of each bag, as a percentage of the
- *  training set size. (default 100)
- * </pre>
- * 
- * <pre>
- * -O
- *  Calculate the out of bag error.
- * </pre>
- * 
- * <pre>
- * -S &lt;num&gt;
- *  Random number seed.
- *  (default 1)
- * </pre>
- * 
- * <pre>
- * -I &lt;num&gt;
- *  Number of iterations.
- *  (default 10)
- * </pre>
- * 
- * <pre>
- * -D
- *  If set, classifier is run in debug mode and
- *  may output additional info to the console
- * </pre>
- * 
- * <pre>
- * -W
- *  Full name of base classifier.
- *  (default: weka.classifiers.trees.REPTree)
- * </pre>
- * 
- * <pre>
- * Options specific to classifier weka.classifiers.trees.REPTree:
- * </pre>
- * 
- * <pre>
- * -M &lt;minimum number of instances&gt;
- *  Set minimum number of instances per leaf (default 2).
- * </pre>
- * 
- * <pre>
- * -V &lt;minimum variance for split&gt;
- *  Set minimum numeric class variance proportion
- *  of train variance for split (default 1e-3).
- * </pre>
- * 
- * <pre>
- * -N &lt;number of folds&gt;
- *  Number of folds for reduced error pruning (default 3).
- * </pre>
- * 
- * <pre>
- * -S &lt;seed&gt;
- *  Seed for random data shuffling (default 1).
- * </pre>
- * 
- * <pre>
- * -P
- *  No pruning.
- * </pre>
- * 
- * <pre>
- * -L
- *  Maximum tree depth (default -1, no maximum)
- * </pre>
- * 
- * <!-- options-end -->
- * 
- * Options after -- are passed to the designated classifier.
- * <p>
- * 
- * @author Eibe Frank (eibe@cs.waikato.ac.nz)
- * @author Len Trigg (len@reeltwo.com)
- * @author Richard Kirkby (rkirkby@cs.waikato.ac.nz)
- * @version $Revision: 11572 $
- */
-public class MyBagging2 extends RandomizableIteratedSingleClassifierEnhancer
+
+public class MyBagging extends RandomizableIteratedSingleClassifierEnhancer
 		implements WeightedInstancesHandler, AdditionalMeasureProducer,
 		TechnicalInformationHandler {
 
@@ -170,7 +41,7 @@ public class MyBagging2 extends RandomizableIteratedSingleClassifierEnhancer
 	int choose;
 	String className;
 
-	public MyBagging2(String cla, int choose) {
+	public MyBagging(String cla, int choose) {
 		this.choose = choose;
 		this.className = cla;
 		m_Classifier = new weka.classifiers.trees.REPTree();
@@ -228,6 +99,7 @@ public class MyBagging2 extends RandomizableIteratedSingleClassifierEnhancer
 	 * 
 	 * @return an enumeration of all the available options.
 	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public Enumeration listOptions() {
 
@@ -246,93 +118,7 @@ public class MyBagging2 extends RandomizableIteratedSingleClassifierEnhancer
 		return newVector.elements();
 	}
 
-	/**
-	 * Parses a given list of options.
-	 * <p/>
-	 * 
-	 * <!-- options-start --> Valid options are:
-	 * <p/>
-	 * 
-	 * <pre>
-	 * -P
-	 *  Size of each bag, as a percentage of the
-	 *  training set size. (default 100)
-	 * </pre>
-	 * 
-	 * <pre>
-	 * -O
-	 *  Calculate the out of bag error.
-	 * </pre>
-	 * 
-	 * <pre>
-	 * -S &lt;num&gt;
-	 *  Random number seed.
-	 *  (default 1)
-	 * </pre>
-	 * 
-	 * <pre>
-	 * -I &lt;num&gt;
-	 *  Number of iterations.
-	 *  (default 10)
-	 * </pre>
-	 * 
-	 * <pre>
-	 * -D
-	 *  If set, classifier is run in debug mode and
-	 *  may output additional info to the console
-	 * </pre>
-	 * 
-	 * <pre>
-	 * -W
-	 *  Full name of base classifier.
-	 *  (default: weka.classifiers.trees.REPTree)
-	 * </pre>
-	 * 
-	 * <pre>
-	 * Options specific to classifier weka.classifiers.trees.REPTree:
-	 * </pre>
-	 * 
-	 * <pre>
-	 * -M &lt;minimum number of instances&gt;
-	 *  Set minimum number of instances per leaf (default 2).
-	 * </pre>
-	 * 
-	 * <pre>
-	 * -V &lt;minimum variance for split&gt;
-	 *  Set minimum numeric class variance proportion
-	 *  of train variance for split (default 1e-3).
-	 * </pre>
-	 * 
-	 * <pre>
-	 * -N &lt;number of folds&gt;
-	 *  Number of folds for reduced error pruning (default 3).
-	 * </pre>
-	 * 
-	 * <pre>
-	 * -S &lt;seed&gt;
-	 *  Seed for random data shuffling (default 1).
-	 * </pre>
-	 * 
-	 * <pre>
-	 * -P
-	 *  No pruning.
-	 * </pre>
-	 * 
-	 * <pre>
-	 * -L
-	 *  Maximum tree depth (default -1, no maximum)
-	 * </pre>
-	 * 
-	 * <!-- options-end -->
-	 * 
-	 * Options after -- are passed to the designated classifier.
-	 * <p>
-	 * 
-	 * @param options
-	 *            the list of options as an array of strings
-	 * @throws Exception
-	 *             if an option is not supported
-	 */
+	
 	@Override
 	public void setOptions(String[] options) throws Exception {
 
@@ -454,8 +240,8 @@ public class MyBagging2 extends RandomizableIteratedSingleClassifierEnhancer
 	 * 
 	 * @return an enumeration of the measure names
 	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Enumeration enumerateMeasures() {
-
 		Vector newVector = new Vector(1);
 		newVector.addElement("measureOutOfBagError");
 		return newVector.elements();
@@ -506,12 +292,13 @@ public class MyBagging2 extends RandomizableIteratedSingleClassifierEnhancer
 					+ "out-of-bag error is to be calculated!");
 		}
 
-		int bagSize = (int) (data.numInstances() * (m_BagSizePercent / 100.0));
-		Random random = new Random();
+		//int bagSize = (int) (data.numInstances() * (m_BagSizePercent / 100.0));
+		Random random = new Random(m_Seed);
 
 		boolean[][] inBag = null;
 		if (m_CalcOutOfBag)
 			inBag = new boolean[m_Classifiers.length][];
+		
 		Sample sample = new Sample(className);
 		for (int j = 0; j < m_Classifiers.length; j++) {
 			Instances bagData = null;
@@ -677,15 +464,5 @@ public class MyBagging2 extends RandomizableIteratedSingleClassifierEnhancer
 	@Override
 	public String getRevision() {
 		return RevisionUtils.extract("$Revision: 11572 $");
-	}
-
-	/**
-	 * Main method for testing this class.
-	 * 
-	 * @param argv
-	 *            the options
-	 */
-	public static void main(String[] argv) {
-		runClassifier(new MyBagging2("bug_introducing",0), argv);
 	}
 }

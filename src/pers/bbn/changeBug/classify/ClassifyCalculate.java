@@ -88,7 +88,7 @@ public class ClassifyCalculate {
 				List<String> keyList = new ArrayList<>();
 				keyList.add(classifys[i]);
 				keyList.add(methods[j]);
-				MyBagging2 bagging = new MyBagging2(className, j - 3);
+				MyBagging bagging = new MyBagging(className, j - 3);
 				// Bagging bagging=new Bagging();
 				bagging.setClassifier((Classifier) Class.forName(classifys[i])
 						.newInstance());
