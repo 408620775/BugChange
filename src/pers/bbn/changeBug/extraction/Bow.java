@@ -27,7 +27,7 @@ public final class Bow {
 	}
 
 	/**
-	 * 根据changelog信息,获取对应文本的词向量.
+	 * 根据changelog信息,获取对应文本的词向量,识别的词向量中不包括特殊符号和数字.
 	 * 
 	 * @param text 输入的文本信息.
 	 * @return 文本所对应的词向量.
@@ -53,16 +53,16 @@ public final class Bow {
 			} else {
 				bag.put(subString, 1);
 			}
-			while (endIndex <= text.length() - 1
-					&& (!isCharacter(text.charAt(endIndex)))) {
-				endIndex++;
-			}
-			startIndex = endIndex;
 		}
 		return bag;
 	}
 
-	public static boolean isCharacter(char c) {
+	/**
+	 * 判断字符c是否为字母,其实这个函数在库函数中已经实现了.
+	 * @param c
+	 * @return
+	 */
+	private static boolean isCharacter(char c) {
 		if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) {
 			return true;
 		}
@@ -284,7 +284,12 @@ public final class Bow {
 		return false;
 	}
 
-	public static void putInBag(String string, Map<String, Integer> map) {
+	/**
+	 * 将单词string加入词袋中
+	 * @param string 要加入的单词
+	 * @param map 词袋
+	 */
+	private static void putInBag(String string, Map<String, Integer> map) {
 		if (map.containsKey(string)) {
 			map.put(string, map.get(string) + 1);
 		} else {
@@ -292,6 +297,11 @@ public final class Bow {
 		}
 	}
 
+	/**
+	 * 將文件路徑解析成词袋形式.
+	 * @param text
+	 * @return
+	 */
 	public static Map<String, Integer> bowPP(String text) {
 		Map<String, Integer> bag = new HashMap<>();
 		String dirList[] = text.split("/");
@@ -333,9 +343,5 @@ public final class Bow {
 			}
 		}
 		return bag;
-	}
-
-	public static void main(String[] args) {
-		System.out.println(bow("Test"));
 	}
 }

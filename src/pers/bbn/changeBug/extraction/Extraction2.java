@@ -373,6 +373,7 @@ public class Extraction2 extends Extraction {
 	 * 将复杂度信息写入数据库,将消耗大量时间.
 	 * @throws SQLException
 	 */
+	@SuppressWarnings("unused")
 	private void createDatabase() throws SQLException {
 		System.out.println("将复杂度数据写如数据库");
 		sql = "create table extraction2(id int(11) primary key not null auto_increment,commit_id int(11),file_id int(11))";
