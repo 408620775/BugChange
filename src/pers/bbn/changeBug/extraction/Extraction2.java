@@ -44,15 +44,15 @@ import java.util.TreeSet;
  *
  */
 public class Extraction2 extends Extraction {
-	TreeSet<List<Integer>> icf_id;
-	int startId;
-	int endId;
-	Set<String> curFiles;
-	Set<String> preFiles;
-	Set<String> attributes;
-	Map<String, Map<String, Double>> grid;
-	Map<List<Integer>, StringBuffer> contentMap;
-	List<List<Integer>> id_commitId_fileIds;
+	private TreeSet<List<Integer>> icf_id;
+	private int startId;
+	private int endId;
+	private Set<String> curFiles;
+	private Set<String> preFiles;
+	private Set<String> attributes;
+	private Map<String, Map<String, Double>> grid;
+	private Map<List<Integer>, StringBuffer> contentMap;
+	private List<List<Integer>> id_commitId_fileIds;
 
 	/**
 	 * 获取主键队列.

@@ -502,9 +502,9 @@ public class Extraction1 extends Extraction {
 	 * @throws SQLException
 	 */
 	public void Diffusion() throws SQLException {
-		sql="desc extraction1";
-		resultSet=stmt.executeQuery(sql);
-		Set<String> column=new HashSet<>();
+		sql = "desc extraction1";
+		resultSet = stmt.executeQuery(sql);
+		Set<String> column = new HashSet<>();
 		while (resultSet.next()) {
 			column.add(resultSet.getString(1));
 		}
@@ -521,7 +521,8 @@ public class Extraction1 extends Extraction {
 			resultSet = stmt.executeQuery(sql);
 			while (resultSet.next()) {
 				String pString = resultSet.getString(1);
-				if ((!pString.endsWith(".java"))||pString.toLowerCase().contains("test")) {
+				if ((!pString.endsWith(".java"))
+						|| pString.toLowerCase().contains("test")) {
 					continue;
 				}
 				String[] path = pString.split("/");
@@ -538,13 +539,76 @@ public class Extraction1 extends Extraction {
 			while (resultSet.next()) {
 				changeOfFile.add(resultSet.getInt(1));
 			}
-			System.out.println(commitId+":"+changeOfFile);
+			System.out.println(commitId + ":" + changeOfFile);
 			float entropy = MathOperation.calEntropy(changeOfFile);
 			sql = "UPDATE extraction1 SET ns=" + subsystem.size() + ",nd="
 					+ directories.size() + ",nf=" + files.size() + ",entropy="
 					+ entropy + " where commit_id=" + commitId;
-			stmt.executeUpdate(sql);			
+			stmt.executeUpdate(sql);
 		}
 	}
 
+	/**
+	 * 根据论文A Large-Scale Empirical Study Of Just-in-Time Quality
+	 * Assurance,增加分类实例的size属性
+	 * ,包括la,ld,lt三类.但似乎这三类属性跟之前的属性或者extraction2中的一些属性重合度很高.
+	 * 值得注意的是,这个函数写的太烂了,跟之前的changed_LOC重合太多,但是由于创建这两个函数的时间维度不同,暂时保持这样.
+	 * 
+	 * @throws SQLException
+	 */
+	public void size() throws SQLException {
+		sql = "desc extraction1";
+		resultSet = stmt.executeQuery(sql);
+		Set<String> column = new HashSet<>();
+		while (resultSet.next()) {
+			column.add(resultSet.getString(1));
+		}
+		if (!column.contains("la")) {
+			sql = "alter table extraction1 add (la int,ld int,lt int)";
+			stmt.executeUpdate(sql);
+		}
+
+		List<List<Integer>> re = new ArrayList<>();
+		for (Integer integer : commitIdPart) {
+			sql = "select id,file_id from extraction1 where commit_id="
+					+ integer;
+			resultSet = stmt.executeQuery(sql);
+			while (resultSet.next()) {
+				List<Integer> temp = new ArrayList<>();
+				temp.add(resultSet.getInt(1));
+				temp.add(integer);
+				temp.add(resultSet.getInt(2));
+				re.add(temp);
+			}
+		}
+		for (List<Integer> list : re) {
+			sql = "select old_start_line,old_end_line,new_start_line,new_end_line from hunks where commit_id="
+					+ list.get(1) + " and file_id=" + list.get(2);
+			resultSet = stmt.executeQuery(sql);
+			int la = 0;
+			int ld = 0;
+			int lt = 0;
+			while (resultSet.next()) {
+				if (resultSet.getInt(1) != 0) {
+					ld = ld + resultSet.getInt(2) - resultSet.getInt(1) + 1;
+				}
+				if (resultSet.getInt(3) != 0) {
+					la = la + resultSet.getInt(4) - resultSet.getInt(3) + 1;
+				}
+			}
+			sql = "SELECT CountLineCode FROM extraction2 where commit_id="
+					+ list.get(1) + " and file_id=" + list.get(2);
+			resultSet = stmt.executeQuery(sql);
+			while (resultSet.next()) {
+				lt = resultSet.getInt(1);
+			}
+			lt = lt - la + ld;
+			if (lt < 0) {
+				System.out.println("lt<0!!!"+" id="+list.get(0));
+			}
+			sql = "UPDATE extraction1 SET la=" + la + ",ld=" + ld + ",lt=" + lt
+					+ " where id=" + list.get(0);
+			stmt.executeUpdate(sql); // 这个信息，似乎在extraction2中的detal计算时已经包含了啊。
+		}
+	}
 }
