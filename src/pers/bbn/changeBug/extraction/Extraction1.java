@@ -502,8 +502,16 @@ public class Extraction1 extends Extraction {
 	 * @throws SQLException
 	 */
 	public void Diffusion() throws SQLException {
-		sql = "alter table Extraction1 add (ns int(4),nd int(4),nf int(4),entropy float) default '0'";
-		stmt.executeUpdate(sql);
+		sql="desc extraction1";
+		resultSet=stmt.executeQuery(sql);
+		Set<String> column=new HashSet<>();
+		while (resultSet.next()) {
+			column.add(resultSet.getString(1));
+		}
+		if (!column.contains("ns")) {
+			sql = "alter table extraction1 add (ns int(4),nd int(4),nf int(4),entropy float)";
+			stmt.executeUpdate(sql);
+		}
 		for (Integer commitId : commitIdPart) {
 			Set<String> subsystem = new HashSet<>();
 			Set<String> directories = new HashSet<>();
@@ -528,8 +536,9 @@ public class Extraction1 extends Extraction {
 			resultSet = stmt.executeQuery(sql);
 			List<Integer> changeOfFile = new ArrayList<>();
 			while (resultSet.next()) {
-				changeOfFile.add(resultSet.getInt(2));
+				changeOfFile.add(resultSet.getInt(1));
 			}
+			System.out.println(commitId+":"+changeOfFile);
 			float entropy = MathOperation.calEntropy(changeOfFile);
 			sql = "UPDATE extraction1 SET ns=" + subsystem.size() + ",nd="
 					+ directories.size() + ",nf=" + files.size() + ",entropy="

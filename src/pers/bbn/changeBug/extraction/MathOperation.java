@@ -18,14 +18,19 @@ public class MathOperation {
 	public static float calEntropy(List<Integer> changeOfFile) throws IllegalArgumentException{
 		float sum=0f;
 		for (Integer integer : changeOfFile) {
-			if (integer<=0) {
+			if (integer<0) {
 				System.out.println("概率值不能为小于等于0!");
 				throw new IllegalArgumentException();
+			}else if (integer==0) {
+				System.out.println("abnormal point");
 			}
 			sum+=integer;
 		}
 		float entropy=0f;
 		for (Integer integer : changeOfFile) {
+			if (integer==0) {
+				continue;
+			}
 			float ratio=integer/sum;
 			entropy-=ratio*(Math.log(ratio)/Math.log(2));
 		}
