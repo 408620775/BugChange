@@ -15,9 +15,13 @@ public class MathOperation {
 	 * @param changeOfFile
 	 * @return
 	 */
-	public static float calEntropy(List<Integer> changeOfFile) {
+	public static float calEntropy(List<Integer> changeOfFile) throws IllegalArgumentException{
 		float sum=0f;
 		for (Integer integer : changeOfFile) {
+			if (integer<=0) {
+				System.out.println("概率值不能为小于等于0!");
+				throw new IllegalArgumentException();
+			}
 			sum+=integer;
 		}
 		float entropy=0f;

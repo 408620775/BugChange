@@ -15,6 +15,7 @@ public class MathOperationTest {
 		List<Integer> list=Arrays.asList(30,20,10);
 		float res=MathOperation.calEntropy(list);
 		assertEquals(1.46, res, 0.001);
+	
 	}
 
 }
