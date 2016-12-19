@@ -30,6 +30,7 @@ public class SQLConnection {
 			databasename=prop.getProperty("URL")+baseName;
 			userName=prop.getProperty("UserName");
 			password=prop.getProperty("Password");
+			connect();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
