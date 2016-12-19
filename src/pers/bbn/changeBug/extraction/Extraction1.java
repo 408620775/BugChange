@@ -497,41 +497,45 @@ public class Extraction1 extends Extraction {
 	/**
 	 * 根据论文A Large-Scale Empirical Study Of Just-in-Time Quality
 	 * Assurance,增加分类实例的diffusion(传播)属性.包括NS,ND,NF和Entropy四类.
-	 * 具体信息可参考论文中的定义.
-	 * @throws SQLException 
+	 * 具体信息可参考论文中的定义.起始根据其实现,感觉此函数是针对commitId的,而非(commitId,fileId)对.
+	 * 
+	 * @throws SQLException
 	 */
 	public void Diffusion() throws SQLException {
-		sql="alter table Extraction1 add (ns int(4),nd int(4),nf int(4),entropy float) default '0'";
+		sql = "alter table Extraction1 add (ns int(4),nd int(4),nf int(4),entropy float) default '0'";
 		stmt.executeUpdate(sql);
 		for (Integer commitId : commitIdPart) {
-			Set<String> subsystem=new HashSet<>();
-			Set<String> directories=new HashSet<>();
-			Set<String> files=new HashSet<>();
-			sql="select current_file_path from actions where commit_id="+commitId;
-			resultSet=stmt.executeQuery(sql);
+			Set<String> subsystem = new HashSet<>();
+			Set<String> directories = new HashSet<>();
+			Set<String> files = new HashSet<>();
+			sql = "select current_file_path from actions where commit_id="
+					+ commitId;
+			resultSet = stmt.executeQuery(sql);
 			while (resultSet.next()) {
-				String pString=resultSet.getString(1);
+				String pString = resultSet.getString(1);
 				if (!pString.endsWith(".java")) {
 					continue;
 				}
-				String[] path=pString.split("/");
-				files.add(path[path.length-1]);
-				if (path.length>1) {
+				String[] path = pString.split("/");
+				files.add(path[path.length - 1]);
+				if (path.length > 1) {
 					subsystem.add(path[0]);
-					directories.add(path[path.length-2]);
+					directories.add(path[path.length - 2]);
 				}
 			}
-			sql="select changed_LOC from extraction1 where commit_id="+commitId;
-			resultSet=stmt.executeQuery(sql);
-			List<Integer> changeOfFile=new ArrayList<>();
+			sql = "select changed_LOC from extraction1 where commit_id="
+					+ commitId;
+			resultSet = stmt.executeQuery(sql);
+			List<Integer> changeOfFile = new ArrayList<>();
 			while (resultSet.next()) {
-				changeOfFile.add(resultSet.getInt(1));
+				changeOfFile.add(resultSet.getInt(2));
 			}
-			float entropy=MathOperation.calEntropy(changeOfFile);
+			float entropy = MathOperation.calEntropy(changeOfFile);
+			sql = "UPDATE extraction1 SET ns=" + subsystem.size() + ",nd="
+					+ directories.size() + ",nf=" + files.size() + ",entropy="
+					+ entropy + " where commit_id=" + commitId;
+			stmt.executeUpdate(sql);			
 		}
-
 	}
-
-	
 
 }
