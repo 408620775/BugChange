@@ -13,21 +13,7 @@ public class Main {
 	static FileOperation fileOperation;
 
 	public static void main(String[] args) throws Exception {
-		File dict=new File("OptResult");
-		String[] cFiles=dict.list();
-		for (String string : cFiles) {
-			String line=null;
-			BufferedReader bReader=new BufferedReader(new FileReader(new File("OptResult/"+string)));
-			BufferedWriter bWriter=new BufferedWriter(new FileWriter(new File("OptResult/"+string)));
-			while ((line=bReader.readLine())!=null&&line.startsWith("weka")) {
-			line=line.substring(line.indexOf("   "));
-			line=line.substring(line.indexOf("   "));
-			bWriter.append(line+"\n");
-			}
-			bReader.close();
-			bWriter.flush();
-			bWriter.close();
-		}
+		Extraction1 extraction1=new Extraction1("MyVoldemort",501,800);
 	}
 
 	static public void Automatic1(String project, int start_commit_id,
@@ -71,21 +57,6 @@ public class Main {
 		fileOperation.writeContent(merge.merge123(), database + ".csv");
 		fileOperation.writeDict(database + "Dict.txt",
 				extraction3.getDictionary());
-	}
-
-	static public void testBow(String fileName) throws IOException {
-		BufferedReader brReader = new BufferedReader(new FileReader(new File(
-				fileName)));
-		String line;
-		StringBuffer text = new StringBuffer();
-		while ((line = brReader.readLine()) != null) {
-			text.append(line + "\n");
-		}
-		brReader.close();
-		Map<String, Integer> bag = Bow.bowP(text);
-		for (String s : bag.keySet()) {
-			System.out.println(s + "    " + bag.get(s));
-		}
 	}
 
 }

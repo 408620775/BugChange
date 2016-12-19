@@ -38,15 +38,15 @@ public class Extraction1 extends Extraction {
 	 * @param database
 	 *            指定的miningit生成数据的数据库。
 	 * @param s
-	 *            指定的commit的起始值
+	 *            指定的commit的起始值,从1开始算.
 	 * @param e
 	 *            指定的commit的结束值
 	 * @throws Exception
 	 */
 	public Extraction1(String database, int s, int e) throws Exception {
-		super(database, s, e);
+		super(database);
 		commitIdPart = new ArrayList<>();
-		for (int j = start - 1; j < end; j++) {
+		for (int j = s - 1; j < e; j++) {
 			commitIdPart.add(commit_ids.get(j));
 		}
 	}

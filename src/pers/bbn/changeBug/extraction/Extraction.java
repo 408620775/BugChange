@@ -31,30 +31,6 @@ public class Extraction {
 	ResultSet resultSet;
 	List<Integer> commit_ids;
 	private SQLConnection sqlL;
-	final int start;
-	final int end;
-
-	/**
-	 * 连接数据库，初始化变量值，为数据的提取做准备。
-	 * 根据s和e的值，按时间顺序提取对应范围内的commit_id，若s==-1或者e==-1，则表明提取scmlog表中所以的commit_id.
-	 * 否则按照时间序提取给定范围内的commit_id列表。
-	 * 
-	 * @param database
-	 *            存放由miningit得到的数据的数据库。
-	 * @param s
-	 *            指定的commit的起始值，按时间排序
-	 * @param e
-	 *            指定的commit的结束值，按时间排序
-	 * @throws Exception
-	 */
-	public Extraction(String database, int s, int e) throws Exception { // 包前不包后,主要为extraction1提供构造
-		sqlL = new SQLConnection(database);
-		this.stmt = sqlL.getStmt();
-		start = s;
-		end = e;
-		commit_ids = new ArrayList<>();
-		sortCommit_id();
-	}
 
 	/**
 	 * extraction2提取信息并不需要miningit生成的数据，此构造函数只是为了统一接口。
@@ -67,8 +43,8 @@ public class Extraction {
 		this.stmt = sqlL.getStmt();
 		commit_ids = new ArrayList<>();
 		sortCommit_id();
-		start = 0; // 实际没有用到
-		end = 0; // 实际没有用到
+		//start = 0; // 实际没有用到
+		//end = 0; // 实际没有用到
 	}
 
 	/**

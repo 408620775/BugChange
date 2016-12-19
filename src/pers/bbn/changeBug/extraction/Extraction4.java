@@ -24,8 +24,10 @@ public class Extraction4 extends Extraction {
 	static StringBuffer attrsTitle;
 	static Set<Integer> uselessAttriId;
 	static String projectName;
+	static int start;
+	static int end;
 	public Extraction4(String database, int s, int e) throws Exception {
-		super(database, s, e);
+		super(database);
 	}
 
 	public void printRevInfo(String outFile) throws SQLException, IOException {
