@@ -4,10 +4,17 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+
+import weka.classifiers.meta.nestedDichotomies.ND;
+import weka.classifiers.trees.j48.EntropyBasedSplitCrit;
+
+import com.sun.org.apache.xml.internal.utils.NSInfo;
 
 /**
  * 从miningit生成的数据库中提取一些基本信息，例如作者姓名，提交时间，累计的bug计数等信息。 构造函数中提供需要连接的数据库。
@@ -486,4 +493,45 @@ public class Extraction1 extends Extraction {
 			}
 		}
 	}
+
+	/**
+	 * 根据论文A Large-Scale Empirical Study Of Just-in-Time Quality
+	 * Assurance,增加分类实例的diffusion(传播)属性.包括NS,ND,NF和Entropy四类.
+	 * 具体信息可参考论文中的定义.
+	 * @throws SQLException 
+	 */
+	public void Diffusion() throws SQLException {
+		sql="alter table Extraction1 add (ns int(4),nd int(4),nf int(4),entropy float) default '0'";
+		stmt.executeUpdate(sql);
+		for (Integer commitId : commitIdPart) {
+			Set<String> subsystem=new HashSet<>();
+			Set<String> directories=new HashSet<>();
+			Set<String> files=new HashSet<>();
+			sql="select current_file_path from actions where commit_id="+commitId;
+			resultSet=stmt.executeQuery(sql);
+			while (resultSet.next()) {
+				String pString=resultSet.getString(1);
+				if (!pString.endsWith(".java")) {
+					continue;
+				}
+				String[] path=pString.split("/");
+				files.add(path[path.length-1]);
+				if (path.length>1) {
+					subsystem.add(path[0]);
+					directories.add(path[path.length-2]);
+				}
+			}
+			sql="select changed_LOC from extraction1 where commit_id="+commitId;
+			resultSet=stmt.executeQuery(sql);
+			List<Integer> changeOfFile=new ArrayList<>();
+			while (resultSet.next()) {
+				changeOfFile.add(resultSet.getInt(1));
+			}
+			float entropy=MathOperation.calEntropy(changeOfFile);
+		}
+
+	}
+
+	
+
 }
