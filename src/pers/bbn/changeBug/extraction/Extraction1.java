@@ -132,7 +132,7 @@ public class Extraction1 extends Extraction {
 			while (resultSet.next()) {
 				if (resultSet.getString(3).contains(".java")
 						&& (!resultSet.getString(4).toLowerCase()
-								.contains("test"))) { // 过滤不完全，如果是Test呢？
+								.contains("test"))) {
 					List<Integer> temp = new ArrayList<>();
 					temp.add(resultSet.getInt(1));
 					temp.add(resultSet.getInt(2));

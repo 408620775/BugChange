@@ -26,11 +26,11 @@ import java.util.List;
  *
  */
 public class Extraction {
-	String sql;
-	SQLConnection sqlL;
-	Statement stmt;
+    String sql;
+    Statement stmt;
 	ResultSet resultSet;
 	List<Integer> commit_ids;
+	private SQLConnection sqlL;
 	final int start;
 	final int end;
 

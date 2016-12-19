@@ -17,8 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import sun.net.www.http.KeepAliveCache;
-import db.k;
 
 public class Test {
 	String sql;
