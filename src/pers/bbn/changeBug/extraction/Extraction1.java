@@ -521,7 +521,7 @@ public class Extraction1 extends Extraction {
 			resultSet = stmt.executeQuery(sql);
 			while (resultSet.next()) {
 				String pString = resultSet.getString(1);
-				if (!pString.endsWith(".java")) {
+				if ((!pString.endsWith(".java"))||pString.toLowerCase().contains("test")) {
 					continue;
 				}
 				String[] path = pString.split("/");
