@@ -308,7 +308,7 @@ public class Extraction1 extends Extraction {
 		String metric;
 		Map<List<Integer>, Integer> countLineCode = new HashMap<>();
 		while ((line = bReader.readLine()) != null) {
-			if (line.endsWith(".java")) {
+			if (line.contains(".java")) {
 				String commit_file_id = line.substring(
 						line.lastIndexOf("\\") + 1, line.lastIndexOf("."));
 				int commitId = Integer.parseInt(commit_file_id.split("_")[0]);
