@@ -308,7 +308,7 @@ public class Extraction1 extends Extraction {
 		String metric;
 		Map<List<Integer>, Integer> countLineCode = new HashMap<>();
 		while ((line = bReader.readLine()) != null) {
-			if (line.contains(".java")) {
+			if ((!line.contains("pre"))&&line.contains(".java")) {
 				String commit_file_id = line.substring(
 						line.lastIndexOf("\\") + 1, line.lastIndexOf("."));
 				int commitId = Integer.parseInt(commit_file_id.split("_")[0]);
@@ -317,7 +317,7 @@ public class Extraction1 extends Extraction {
 				key.add(commitId);
 				key.add(fileId);
 				while ((metric = bReader.readLine()) != null) {
-					if (metric.contains("CountLineCode")) {
+					if (metric.contains("CountLine")) {
 						countLineCode.put(key,
 								Integer.parseInt(metric.split(":")[1].trim()));
 						break;
@@ -632,7 +632,7 @@ public class Extraction1 extends Extraction {
 					la = la + resultSet.getInt(4) - resultSet.getInt(3) + 1;
 				}
 			}
-			sql = "SELECT CountLineCode FROM extraction2 where commit_id="
+			sql = "SELECT sloc FROM extraction1 where commit_id="
 					+ list.get(1) + " and file_id=" + list.get(2);
 			resultSet = stmt.executeQuery(sql);
 			while (resultSet.next()) {
