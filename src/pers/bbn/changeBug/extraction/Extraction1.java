@@ -1,5 +1,10 @@
 package pers.bbn.changeBug.extraction;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -289,13 +294,44 @@ public class Extraction1 extends Extraction {
 	 * 获取源码长度。 得到表metrics的复杂度开销很大，
 	 * 而得到的信息在此后的extraction2中非常方便的提取，所以真心觉得此处提起这个度量没有什么意义。
 	 * 
+	 * 但是由于需要获取size()中的lt属性值,还必须得有sloc才好算.而extraction2写入数据库的时间成本过高,所以在merger时,
+	 * extraction2的信息往往是根据metrics的txt直接生成的,而非从数据库中提取.所以本方法也必须依赖于metrics
+	 * txt来获取sloc的值.
+	 * 
 	 * @throws SQLException
+	 * @throws IOException
 	 */
-	public void sloc() throws SQLException {
-		System.out.println("get sloc");
-		sql = "update extraction1,metrics set extraction1.sloc=metrics.loc where extraction1.commit_id=metrics.commit_id and "
-				+ "extraction1.file_id=metrics.file_id";
-		stmt.executeUpdate(sql);
+	public void sloc(String metricsTxt) throws SQLException, IOException {
+		File metricsFile = new File(metricsTxt);
+		BufferedReader bReader = new BufferedReader(new FileReader(metricsFile));
+		String line;
+		String metric;
+		Map<List<Integer>, Integer> countLineCode = new HashMap<>();
+		while ((line = bReader.readLine()) != null) {
+			if (line.endsWith(".java")) {
+				String commit_file_id = line.substring(
+						line.lastIndexOf("\\") + 1, line.lastIndexOf("."));
+				int commitId = Integer.parseInt(commit_file_id.split("_")[0]);
+				int fileId = Integer.parseInt(commit_file_id.split("_")[1]);
+				List<Integer> key = new ArrayList<>();
+				key.add(commitId);
+				key.add(fileId);
+				while ((metric = bReader.readLine()) != null) {
+					if (metric.contains("CountLineCode")) {
+						countLineCode.put(key,
+								Integer.parseInt(metric.split(":")[1].trim()));
+						break;
+					}
+				}
+			}
+		}
+		bReader.close();
+		for (List<Integer> key : countLineCode.keySet()) {
+			sql = "UPDATE extraction1 SET sloc=" + countLineCode.get(key)
+					+ " where commit_id=" + key.get(0) + " and file_id="
+					+ key.get(1);
+			stmt.executeUpdate(sql);
+		}
 	}
 
 	/**
@@ -604,7 +640,7 @@ public class Extraction1 extends Extraction {
 			}
 			lt = lt - la + ld;
 			if (lt < 0) {
-				System.out.println("lt<0!!!"+" id="+list.get(0));
+				System.out.println("lt<0!!!" + " id=" + list.get(0));
 			}
 			sql = "UPDATE extraction1 SET la=" + la + ",ld=" + ld + ",lt=" + lt
 					+ " where id=" + list.get(0);
